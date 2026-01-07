@@ -5,7 +5,6 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Camera playerCamera;
-    [SerializeField] Rigidbody rb;
 
     [Header("Movement")]
     [SerializeField] private float walkSpeed = 6f;
@@ -51,12 +50,12 @@ public class PlayerMovement : MonoBehaviour
     // handle left mouse button hold
     private float holdStartTime;
     private bool isCharging;
+    private bool isLaunching = false;
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
         targetHeight = defaultHeight;
-        rb = GetComponent<Rigidbody>();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -77,6 +76,7 @@ public class PlayerMovement : MonoBehaviour
     void HandleMovement()
     {
         if (isSliding) return;
+        if (isLaunching) return;
 
         Vector3 forward = transform.forward;
         Vector3 right = transform.right;
@@ -92,8 +92,7 @@ public class PlayerMovement : MonoBehaviour
 
         float movementDirectionY = moveDirection.y;
 
-        // this resets the x and z movement each frame
-        moveDirection += (forward * moveX + right * moveZ) * currentSpeed;
+        moveDirection = (forward * moveX + right * moveZ) * currentSpeed;
         moveDirection.y = movementDirectionY;
 
         if (characterController.isGrounded && Input.GetButton("Jump") && canMove && !isCrouching)
@@ -199,7 +198,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0) && isCharging)
         {
-            Debug.DrawRay(transform.position, moveDirection, Color.green);
+            isLaunching = true;
             isCharging = false;
 
             float heldTime = Mathf.Min(Time.time - holdStartTime, maxChargeTime);
@@ -208,8 +207,7 @@ public class PlayerMovement : MonoBehaviour
 
             float launchSpeed = Mathf.Lerp(minLaunchSpeed, maxLaunchSpeed, chargeRatio);
 
-            Vector3 launchDirection = -Camera.main.transform.forward;
-            launchDirection = launchDirection.normalized;
+            Vector3 launchDirection = -playerCamera.transform.forward;
 
             moveDirection += launchDirection * launchSpeed;
         }
@@ -217,6 +215,8 @@ public class PlayerMovement : MonoBehaviour
 
     void DampenHorizontalVelocity()
     {
+        if(!isLaunching) return;
+
         Vector3 horizontal = new Vector3(moveDirection.x, 0f, moveDirection.z);
 
         horizontal = Vector3.Lerp(
@@ -227,6 +227,9 @@ public class PlayerMovement : MonoBehaviour
 
         moveDirection.x = horizontal.x;
         moveDirection.z = horizontal.z;
+
+        if (Mathf.Abs(moveDirection.x) <= 0.5f && Mathf.Abs(moveDirection.z) <= 0.5f)
+            isLaunching = false;
     }
 
 }
