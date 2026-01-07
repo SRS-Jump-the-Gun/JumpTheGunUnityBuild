@@ -5,6 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Camera playerCamera;
+    [SerializeField] Rigidbody rb;
 
     [Header("Movement")]
     [SerializeField] private float walkSpeed = 6f;
@@ -27,12 +28,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float slideDuration = 0.75f;
     [SerializeField] private float slideInputBufferTime = 0.2f;
 
-    [Header("Wall Jump")]
-    [SerializeField] private float wallJumpForce = 10f;
-    [SerializeField] private float wallJumpUpwardForce = 7f;
-    [SerializeField] private float wallCheckDistance = 0.7f;
-    [SerializeField] private float wallJumpCooldown = 0.3f;
-    [SerializeField] private LayerMask wallLayer; 
+    [Header("Charge Settings")]
+    public float maxChargeTime = 2.0f;
+    public float minLaunchSpeed = 10f;
+    public float maxLaunchSpeed = 30f;
+    public float launchDamping = 5f; // how fast the launch slows down   
+
+    private float slideBufferTimer;
 
     private float slideBufferTimer;
     private bool isSliding;
@@ -48,16 +50,15 @@ public class PlayerMovement : MonoBehaviour
     private bool canMove = true;
     private bool isCrouching;
 
-    // Wall jump variables
-    private bool isWallJumping;
-    private float wallJumpTimer;
-    private Vector3 wallNormal;
-    
+    // handle left mouse button hold
+    private float holdStartTime;
+    private bool isCharging;
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
         targetHeight = defaultHeight;
+        rb = GetComponent<Rigidbody>();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -66,10 +67,13 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         HandleMovement();
+        ApplyGravity();
         HandleCrouch();
         HandleMouseLook();
         HandleSlide();
-        HandleWallJump();
+        HandleLeftClick();
+        DampenHorizontalVelocity();
+        characterController.Move(moveDirection * Time.deltaTime);
     }
 
     void HandleMovement()
@@ -90,26 +94,26 @@ public class PlayerMovement : MonoBehaviour
 
         float movementDirectionY = moveDirection.y;
 
-        // Reduce air control during wall jump
-        float airControlMultiplier = isWallJumping ? 0.8f : 1f;
-        moveDirection = (forward * moveX + right * moveZ) * currentSpeed * airControlMultiplier;
+        // this resets the x and z movement each frame
+        moveDirection += (forward * moveX + right * moveZ) * currentSpeed;
         moveDirection.y = movementDirectionY;
 
-        if (characterController.isGrounded)
+        if (characterController.isGrounded && Input.GetButton("Jump") && canMove && !isCrouching)
         {
-            isWallJumping = false; // Reset wall jump state when landing
-            
-            if (Input.GetButton("Jump") && canMove && !isCrouching)
-            {
-                moveDirection.y = jumpPower;
-            }
+            moveDirection.y = jumpPower;
+        }
+    }
+
+    void ApplyGravity()
+    {
+        if (characterController.isGrounded && moveDirection.y < 0f)
+        {
+            moveDirection.y = -2f; // stick to ground
         }
         else
         {
-            moveDirection.y -= gravity * Time.deltaTime;
+            moveDirection.y += gravity * Time.deltaTime;
         }
-
-        characterController.Move(moveDirection * Time.deltaTime);
     }
 
     void HandleCrouch()
@@ -174,22 +178,11 @@ public class PlayerMovement : MonoBehaviour
         if (isSliding)
         {
             slideTimer -= Time.deltaTime;
-            targetHeight = crouchHeight;
-            characterController.height = Mathf.Lerp(
-                characterController.height,
-                targetHeight,
-                Time.deltaTime * crouchSmoothSpeed
-            );
             Vector3 slideMove = slideDirection * slideSpeed;
             slideMove.y = moveDirection.y;
             slideMove.y -= gravity * Time.deltaTime;
 
             characterController.Move(slideMove * Time.deltaTime);
-            if(Input.GetButton("Jump"))
-            {
-                isSliding = false;
-                moveDirection.y = jumpPower;
-            }
             if (slideTimer <= 0)
             {
                 isSliding = false;
@@ -197,53 +190,45 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-void HandleWallJump()
-{
-    // Countdown wall jump timer
-    if (wallJumpTimer > 0)
+    void HandleLeftClick()
     {
-        wallJumpTimer -= Time.deltaTime;
-    }
-
-    // Can't wall jump if grounded or on cooldown
-    if (characterController.isGrounded || wallJumpTimer > 0)
-        return;
-
-    // Check for walls in all four directions
-    bool wallDetected = false;
-    RaycastHit hit;
-
-    Vector3[] directions = new Vector3[]
-    {
-        transform.forward,
-        -transform.forward,
-        transform.right,
-        -transform.right
-    };
-
-    foreach (Vector3 dir in directions)
-    {
-        if (Physics.Raycast(transform.position, dir, out hit, wallCheckDistance, wallLayer))
+        // Mouse button pressed 0 = left button 1 = right button 2 = middle button
+        if (Input.GetMouseButtonDown(0))
         {
-            wallDetected = true;
-            wallNormal = hit.normal;
-            
-            // Optional: Draw debug line to see wall detection
-            Debug.DrawRay(transform.position, dir * wallCheckDistance, Color.green);
-            break;
+            isCharging = true;
+            holdStartTime = Time.time;
+        }
+
+        if (Input.GetMouseButtonUp(0) && isCharging)
+        {
+            Debug.DrawRay(transform.position, moveDirection, Color.green);
+            isCharging = false;
+
+            float heldTime = Mathf.Min(Time.time - holdStartTime, maxChargeTime);
+
+            float chargeRatio = Mathf.Clamp01(heldTime / maxChargeTime);
+
+            float launchSpeed = Mathf.Lerp(minLaunchSpeed, maxLaunchSpeed, chargeRatio);
+
+            Vector3 launchDirection = -Camera.main.transform.forward;
+            launchDirection = launchDirection.normalized;
+
+            moveDirection += launchDirection * launchSpeed;
         }
     }
 
-    // Perform wall jump
-    if (wallDetected && Input.GetButtonDown("Jump") && canMove)
+    void DampenHorizontalVelocity()
     {
-        isWallJumping = true;
-        wallJumpTimer = wallJumpCooldown;
+        Vector3 horizontal = new Vector3(moveDirection.x, 0f, moveDirection.z);
 
-        // Push away from wall and add upward force
-        moveDirection = wallNormal * wallJumpForce; 
-        moveDirection.y = wallJumpUpwardForce;
-        
+        horizontal = Vector3.Lerp(
+            horizontal,
+            Vector3.zero,
+            launchDamping * Time.deltaTime
+        );
+
+        moveDirection.x = horizontal.x;
+        moveDirection.z = horizontal.z;
     }
-}
+
 }
