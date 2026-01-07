@@ -228,7 +228,12 @@ public class PlayerMovement : MonoBehaviour
         moveDirection.x = horizontal.x;
         moveDirection.z = horizontal.z;
 
-        if (Mathf.Abs(moveDirection.x) <= 0.5f && Mathf.Abs(moveDirection.z) <= 0.5f)
+        // if the player is grounded and the launch speed is low then stop launching
+        if (characterController.isGrounded && Mathf.Abs(moveDirection.x) <= 2f && Mathf.Abs(moveDirection.z) <= 2f)
+            isLaunching = false;
+
+        // if the launch speed is low then allow for player movement again
+        if (Mathf.Abs(moveDirection.x) <= 1f && Mathf.Abs(moveDirection.z) <= 1f)
             isLaunching = false;
     }
 
