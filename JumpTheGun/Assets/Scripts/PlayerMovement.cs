@@ -5,6 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Camera playerCamera;
+    [SerializeField] Rigidbody rb;
 
     [Header("Movement")]
     [SerializeField] private float walkSpeed = 6f;
@@ -26,6 +27,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float slideDuration = 0.75f;
     [SerializeField] private float slideInputBufferTime = 0.2f;
 
+    [Header("Charge Settings")]
+    public float maxChargeTime = 2.0f;
+    public float minLaunchSpeed = 10f;
+    public float maxLaunchSpeed = 30f;
+    public float launchDamping = 5f; // how fast the launch slows down   
+
     private float slideBufferTimer;
 
     private bool isSliding;
@@ -41,10 +48,15 @@ public class PlayerMovement : MonoBehaviour
     private bool canMove = true;
     private bool isCrouching;
 
+    // handle left mouse button hold
+    private float holdStartTime;
+    private bool isCharging;
+
     void Start()
     {
         characterController = GetComponent<CharacterController>();
         targetHeight = defaultHeight;
+        rb = GetComponent<Rigidbody>();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -53,9 +65,13 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         HandleMovement();
+        ApplyGravity();
         HandleCrouch();
         HandleMouseLook();
         HandleSlide();
+        HandleLeftClick();
+        DampenHorizontalVelocity();
+        characterController.Move(moveDirection * Time.deltaTime);
     }
 
     void HandleMovement()
@@ -76,22 +92,26 @@ public class PlayerMovement : MonoBehaviour
 
         float movementDirectionY = moveDirection.y;
 
-        moveDirection = (forward * moveX + right * moveZ) * currentSpeed;
+        // this resets the x and z movement each frame
+        moveDirection += (forward * moveX + right * moveZ) * currentSpeed;
         moveDirection.y = movementDirectionY;
 
-        if (characterController.isGrounded)
+        if (characterController.isGrounded && Input.GetButton("Jump") && canMove && !isCrouching)
         {
-            if (Input.GetButton("Jump") && canMove && !isCrouching)
-            {
-                moveDirection.y = jumpPower;
-            }
+            moveDirection.y = jumpPower;
+        }
+    }
+
+    void ApplyGravity()
+    {
+        if (characterController.isGrounded && moveDirection.y < 0f)
+        {
+            moveDirection.y = -2f; // stick to ground
         }
         else
         {
-            moveDirection.y -= gravity * Time.deltaTime;
+            moveDirection.y += gravity * Time.deltaTime;
         }
-
-        characterController.Move(moveDirection * Time.deltaTime);
     }
 
     void HandleCrouch()
@@ -118,56 +138,96 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
     }
     void HandleSlide()
-{
-    // Buffer slide input (even in air)
-    if (Input.GetKeyDown(KeyCode.C) && Input.GetKey(KeyCode.LeftShift))
     {
-        slideBufferTimer = slideInputBufferTime;
-    }
-
-    // Countdown buffer
-    if (slideBufferTimer > 0)
-    {
-        slideBufferTimer -= Time.deltaTime;
-    }
-
-    // Start slide when grounded
-    if (!isSliding &&
-        slideBufferTimer > 0 &&
-        characterController.isGrounded &&
-        characterController.velocity.magnitude > runSpeed * 0.8f)
-    {
-        isSliding = true;
-        slideTimer = slideDuration;
-        slideBufferTimer = 0f;
-
-        Vector3 horizontalVelocity = characterController.velocity;
-        horizontalVelocity.y = 0f;
-        slideDirection = horizontalVelocity.normalized;
-
-        if (slideDirection.magnitude < 0.1f)
-            slideDirection = transform.forward;
-
-        isCrouching = true;
-    }
-
-    // During slide
-    if (isSliding)
-    {
-        slideTimer -= Time.deltaTime;
-
-        Vector3 slideMove = slideDirection * slideSpeed;
-        slideMove.y = moveDirection.y;
-        slideMove.y -= gravity * Time.deltaTime;
-
-        characterController.Move(slideMove * Time.deltaTime);
-
-        if (slideTimer <= 0)
+        // Buffer slide input (even in air)
+        if (Input.GetKeyDown(KeyCode.C) && Input.GetKey(KeyCode.LeftShift))
         {
-            isSliding = false;
+            slideBufferTimer = slideInputBufferTime;
+        }
+
+        // Countdown buffer
+        if (slideBufferTimer > 0)
+        {
+            slideBufferTimer -= Time.deltaTime;
+        }
+
+        // Start slide when grounded
+        if (!isSliding &&
+            slideBufferTimer > 0 &&
+            characterController.isGrounded &&
+            characterController.velocity.magnitude > runSpeed * 0.8f)
+        {
+            isSliding = true;
+            slideTimer = slideDuration;
+            slideBufferTimer = 0f;
+
+            Vector3 horizontalVelocity = characterController.velocity;
+            horizontalVelocity.y = 0f;
+            slideDirection = horizontalVelocity.normalized;
+
+            if (slideDirection.magnitude < 0.1f)
+                slideDirection = transform.forward;
+
+            isCrouching = true;
+        }
+
+        // During slide
+        if (isSliding)
+        {
+            slideTimer -= Time.deltaTime;
+
+            Vector3 slideMove = slideDirection * slideSpeed;
+            slideMove.y = moveDirection.y;
+            slideMove.y -= gravity * Time.deltaTime;
+
+            characterController.Move(slideMove * Time.deltaTime);
+
+            if (slideTimer <= 0)
+            {
+                isSliding = false;
+            }
         }
     }
-}
 
+    void HandleLeftClick()
+    {
+        // Mouse button pressed 0 = left button 1 = right button 2 = middle button
+        if (Input.GetMouseButtonDown(0))
+        {
+            isCharging = true;
+            holdStartTime = Time.time;
+        }
+
+        if (Input.GetMouseButtonUp(0) && isCharging)
+        {
+            Debug.DrawRay(transform.position, moveDirection, Color.green);
+            isCharging = false;
+
+            float heldTime = Mathf.Min(Time.time - holdStartTime, maxChargeTime);
+
+            float chargeRatio = Mathf.Clamp01(heldTime / maxChargeTime);
+
+            float launchSpeed = Mathf.Lerp(minLaunchSpeed, maxLaunchSpeed, chargeRatio);
+
+            Vector3 launchDirection = -Camera.main.transform.forward;
+            launchDirection = launchDirection.normalized;
+
+            moveDirection += launchDirection * launchSpeed;
+        }
+    }
+
+    void DampenHorizontalVelocity()
+    {
+        Vector3 horizontal = new Vector3(moveDirection.x, 0f, moveDirection.z);
+
+        horizontal = Vector3.Lerp(
+            horizontal,
+            Vector3.zero,
+            launchDamping * Time.deltaTime
+        );
+
+        moveDirection.x = horizontal.x;
+        moveDirection.z = horizontal.z;
+    }
 
 }
