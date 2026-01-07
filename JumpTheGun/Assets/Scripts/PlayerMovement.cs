@@ -22,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float defaultHeight = 5f;
     [SerializeField] private float crouchHeight = 1f;
     [SerializeField] private float crouchSmoothSpeed = 10f;
+    
     [Header("Slide")]
     [SerializeField] private float slideSpeed = 14f;
     [SerializeField] private float slideDuration = 0.75f;
@@ -35,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
 
     private float slideBufferTimer;
 
+    private float slideBufferTimer;
     private bool isSliding;
     private float slideTimer;
     private Vector3 slideDirection;
@@ -137,6 +139,7 @@ public class PlayerMovement : MonoBehaviour
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
         transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
     }
+
     void HandleSlide()
     {
         // Buffer slide input (even in air)
@@ -175,13 +178,11 @@ public class PlayerMovement : MonoBehaviour
         if (isSliding)
         {
             slideTimer -= Time.deltaTime;
-
             Vector3 slideMove = slideDirection * slideSpeed;
             slideMove.y = moveDirection.y;
             slideMove.y -= gravity * Time.deltaTime;
 
             characterController.Move(slideMove * Time.deltaTime);
-
             if (slideTimer <= 0)
             {
                 isSliding = false;
