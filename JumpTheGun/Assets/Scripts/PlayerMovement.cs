@@ -35,8 +35,6 @@ public class PlayerMovement : MonoBehaviour
     public float launchDamping = 5f; // how fast the launch slows down   
 
     private float slideBufferTimer;
-
-    private float slideBufferTimer;
     private bool isSliding;
     private float slideTimer;
     private Vector3 slideDirection;
