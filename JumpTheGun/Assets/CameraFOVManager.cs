@@ -26,7 +26,7 @@ public class CameraFOVManager : MonoBehaviour
         {
             targetFOV = zoomFOV;
 
-            if(Input.GetKey(KeyCode.LeftControl))
+            if(Input.GetKey(KeyCode.C))
             {
                 targetFOV = zoomFOV + 10f; // Additional zoom when Left Control is also pressed.
             }
