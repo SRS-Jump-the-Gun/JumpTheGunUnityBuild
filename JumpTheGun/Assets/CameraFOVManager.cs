@@ -8,6 +8,7 @@ public class CameraFOVManager : MonoBehaviour
     [SerializeField] private float zoomSpeed = 5f;
 
     private Camera mainCamera;
+    private PlayerMovement playerMovement;
 
     void Start()
     {
@@ -15,6 +16,8 @@ public class CameraFOVManager : MonoBehaviour
         mainCamera = GetComponent<Camera>();
         // Set the initial FOV.
         mainCamera.fieldOfView = normalFOV;
+
+        playerMovement = GetComponentInParent<PlayerMovement>();
     }
 
     void Update()
@@ -26,7 +29,7 @@ public class CameraFOVManager : MonoBehaviour
         {
             targetFOV = zoomFOV;
 
-            if(Input.GetKey(KeyCode.C))
+            if(playerMovement.isSlidingPublic())
             {
                 targetFOV = zoomFOV + 10f; // Additional zoom when Left Control is also pressed.
             }

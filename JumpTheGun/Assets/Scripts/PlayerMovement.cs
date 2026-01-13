@@ -275,4 +275,9 @@ public class PlayerMovement : MonoBehaviour
         
     }
 }
+
+    public bool isSlidingPublic()
+    { 
+        return isSliding;
+    }
 }
