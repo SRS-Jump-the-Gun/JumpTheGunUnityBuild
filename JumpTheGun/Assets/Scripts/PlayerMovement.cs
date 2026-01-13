@@ -116,7 +116,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            moveDirection.y += gravity * Time.deltaTime;
+            moveDirection.y -= gravity * Time.deltaTime;
         }
     }
 
@@ -218,7 +218,7 @@ public class PlayerMovement : MonoBehaviour
     void DampenHorizontalVelocity()
     {
         if (!characterController.isGrounded)
-            launchDirection.y += gravity * Time.deltaTime;
+            launchDirection.y -= gravity * Time.deltaTime;
         else
             launchDirection.y = 0;
 
@@ -270,8 +270,9 @@ public class PlayerMovement : MonoBehaviour
         wallJumpTimer = wallJumpCooldown;
 
         // Push away from wall and add upward force
-        moveDirection = wallNormal * wallJumpForce; 
-        moveDirection.y = wallJumpUpwardForce;
+                moveDirection.x += wallNormal.x * wallJumpForce;
+                moveDirection.z += wallNormal.z * wallJumpForce;
+                moveDirection.y = wallJumpUpwardForce;
         
     }
 }
