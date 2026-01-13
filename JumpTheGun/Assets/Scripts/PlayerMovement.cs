@@ -28,10 +28,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float slideInputBufferTime = 0.2f;
 
     [Header("Charge Settings")]
-    public float maxChargeTime = 2.0f;
-    public float minLaunchSpeed = 10f;
-    public float maxLaunchSpeed = 30f;
-    public float launchDamping = 5f; // how fast the launch slows down   
+    public float launchSpeed = 30f;
+    public float launchDamping = 2f; // how fast the launch slows down   
 
     private float slideBufferTimer;
     private bool isSliding;
@@ -44,13 +42,13 @@ public class PlayerMovement : MonoBehaviour
     private float targetHeight;
 
     private CharacterController characterController;
+    private Vector3 characterDirection = Vector3.zero;
     private bool canMove = true;
     private bool isCrouching;
 
     // handle left mouse button hold
-    private float holdStartTime;
-    private bool isCharging;
-    private bool isLaunching = false;
+    private Vector3 launchDirection = Vector3.zero;
+
 
     void Start()
     {
@@ -64,19 +62,19 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         HandleMovement();
-        ApplyGravity();
         HandleCrouch();
         HandleMouseLook();
         HandleSlide();
         HandleLeftClick();
         DampenHorizontalVelocity();
-        characterController.Move(moveDirection * Time.deltaTime);
+
+        characterDirection = moveDirection + launchDirection;
+        characterController.Move(characterDirection * Time.deltaTime);
     }
 
     void HandleMovement()
     {
         if (isSliding) return;
-        if (isLaunching) return;
 
         Vector3 forward = transform.forward;
         Vector3 right = transform.right;
@@ -99,10 +97,7 @@ public class PlayerMovement : MonoBehaviour
         {
             moveDirection.y = jumpPower;
         }
-    }
 
-    void ApplyGravity()
-    {
         if (characterController.isGrounded && moveDirection.y < 0f)
         {
             moveDirection.y = -2f; // stick to ground
@@ -190,51 +185,22 @@ public class PlayerMovement : MonoBehaviour
     void HandleLeftClick()
     {
         // Mouse button pressed 0 = left button 1 = right button 2 = middle button
+
         if (Input.GetMouseButtonDown(0))
         {
-            isCharging = true;
-            holdStartTime = Time.time;
-        }
-
-        if (Input.GetMouseButtonUp(0) && isCharging)
-        {
-            isLaunching = true;
-            isCharging = false;
-
-            float heldTime = Mathf.Min(Time.time - holdStartTime, maxChargeTime);
-
-            float chargeRatio = Mathf.Clamp01(heldTime / maxChargeTime);
-
-            float launchSpeed = Mathf.Lerp(minLaunchSpeed, maxLaunchSpeed, chargeRatio);
-
-            Vector3 launchDirection = -playerCamera.transform.forward;
-
-            moveDirection += launchDirection * launchSpeed;
+            launchDirection = -playerCamera.transform.forward * launchSpeed;
         }
     }
 
     void DampenHorizontalVelocity()
     {
-        if(!isLaunching) return;
+        if(!characterController.isGrounded)
+            launchDirection.y += gravity * Time.deltaTime;
+        else
+            launchDirection.y = 0;
 
-        Vector3 horizontal = new Vector3(moveDirection.x, 0f, moveDirection.z);
-
-        horizontal = Vector3.Lerp(
-            horizontal,
-            Vector3.zero,
-            launchDamping * Time.deltaTime
-        );
-
-        moveDirection.x = horizontal.x;
-        moveDirection.z = horizontal.z;
-
-        // if the player is grounded and the launch speed is low then stop launching
-        if (characterController.isGrounded && Mathf.Abs(moveDirection.x) <= 2f && Mathf.Abs(moveDirection.z) <= 2f)
-            isLaunching = false;
-
-        // if the launch speed is low then allow for player movement again
-        if (Mathf.Abs(moveDirection.x) <= 1f && Mathf.Abs(moveDirection.z) <= 1f)
-            isLaunching = false;
+        launchDirection.x -= launchDirection.x * launchDamping * Time.deltaTime;
+        launchDirection.z -= launchDirection.z * launchDamping * Time.deltaTime;
     }
 
 }
