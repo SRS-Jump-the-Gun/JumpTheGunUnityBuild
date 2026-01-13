@@ -8,11 +8,16 @@ public class BasicEnemyBehavior : MonoBehaviour
     //TLDR the way this script works is you need game objects with transforms to set (in editor) as destinations for the enemy to walk to. If the player
     //ever enters the enemies sphere collider, it constantly goes after them... this also requires the player to have a collider which I added :^)
 
+    //This script also assumes that there is an active navmesh surface for the enemy to move across, to do this in scene, just add a navmesh surface to the "plane"
+    //and bake the nav mesh surface component. The enemy prefab already has a navmesh agent, so it should work like that.
+
     NavMeshAgent agent;
-    [SerializeField] GameObject player;
-    public Transform[] destinations;
     int currentDestination = 0;
     bool chasing = false;
+
+    [SerializeField] GameObject player;
+    public Transform[] destinations;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
