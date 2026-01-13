@@ -19,13 +19,20 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Crouch")]
     [SerializeField] private float defaultHeight = 5f;
-    [SerializeField] private float crouchHeight = 1f;
+    [SerializeField] private float crouchHeight = 0.5f;
     [SerializeField] private float crouchSmoothSpeed = 10f;
-    
+
     [Header("Slide")]
     [SerializeField] private float slideSpeed = 14f;
     [SerializeField] private float slideDuration = 0.75f;
     [SerializeField] private float slideInputBufferTime = 0.2f;
+    [Header("Wall Jump")]
+    [SerializeField] private float wallJumpForce = 10f;
+    [SerializeField] private float wallJumpUpwardForce = 7f;
+    [SerializeField] private float wallCheckDistance = 0.7f;
+    [SerializeField] private float wallJumpCooldown = 0.3f;
+    [SerializeField] private LayerMask wallLayer; 
+
 
     [Header("Charge Settings")]
     public float launchSpeed = 30f;
@@ -45,7 +52,11 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 characterDirection = Vector3.zero;
     private bool canMove = true;
     private bool isCrouching;
-
+        // Wall jump variables
+    private bool isWallJumping;
+    private float wallJumpTimer;
+    private Vector3 wallNormal;
+    
     // handle left mouse button hold
     private Vector3 launchDirection = Vector3.zero;
 
@@ -66,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
         HandleMouseLook();
         HandleSlide();
         HandleLeftClick();
+        HandleWallJump();
         DampenHorizontalVelocity();
 
         characterDirection = moveDirection + launchDirection;
@@ -174,7 +186,18 @@ public class PlayerMovement : MonoBehaviour
             slideMove.y = moveDirection.y;
             slideMove.y -= gravity * Time.deltaTime;
 
+            if (Input.GetButton("Jump"))
+            {
+                isSliding = false;
+            }
+
             characterController.Move(slideMove * Time.deltaTime);
+
+            characterController.height = Mathf.Lerp(
+            characterController.height,
+            crouchHeight,
+            Time.deltaTime * crouchSmoothSpeed
+        );
             if (slideTimer <= 0)
             {
                 isSliding = false;
@@ -194,7 +217,7 @@ public class PlayerMovement : MonoBehaviour
 
     void DampenHorizontalVelocity()
     {
-        if(!characterController.isGrounded)
+        if (!characterController.isGrounded)
             launchDirection.y += gravity * Time.deltaTime;
         else
             launchDirection.y = 0;
@@ -203,4 +226,53 @@ public class PlayerMovement : MonoBehaviour
         launchDirection.z -= launchDirection.z * launchDamping * Time.deltaTime;
     }
 
+    void HandleWallJump()
+{
+    // Countdown wall jump timer
+    if (wallJumpTimer > 0)
+    {
+        wallJumpTimer -= Time.deltaTime;
+    }
+
+    // Can't wall jump if grounded or on cooldown
+    if (characterController.isGrounded || wallJumpTimer > 0)
+        return;
+
+    // Check for walls in all four directions
+    bool wallDetected = false;
+    RaycastHit hit;
+
+    Vector3[] directions = new Vector3[]
+    {
+        transform.forward,
+        -transform.forward,
+        transform.right,
+        -transform.right
+    };
+
+    foreach (Vector3 dir in directions)
+    {
+        if (Physics.Raycast(transform.position, dir, out hit, wallCheckDistance, wallLayer))
+        {
+            wallDetected = true;
+            wallNormal = hit.normal;
+            
+            // Optional: Draw debug line to see wall detection
+            Debug.DrawRay(transform.position, dir * wallCheckDistance, Color.green);
+            break;
+        }
+    }
+
+    // Perform wall jump
+    if (wallDetected && Input.GetButtonDown("Jump") && canMove)
+    {
+        isWallJumping = true;
+        wallJumpTimer = wallJumpCooldown;
+
+        // Push away from wall and add upward force
+        moveDirection = wallNormal * wallJumpForce; 
+        moveDirection.y = wallJumpUpwardForce;
+        
+    }
+}
 }
