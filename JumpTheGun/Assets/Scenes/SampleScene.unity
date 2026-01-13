@@ -18720,6 +18720,7 @@ GameObject:
   - component: {fileID: 2058494039}
   - component: {fileID: 2058494038}
   - component: {fileID: 2058494037}
+  - component: {fileID: 2058494040}
   m_Layer: 0
   m_Name: PlayerF
   m_TagString: Untagged
@@ -18804,6 +18805,20 @@ Transform:
   - {fileID: 330585546}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!114 &2058494040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2058494036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5333b0813d437d54aab7174ddc8849aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCamera: {fileID: 330585545}
+  bulletPrefab: {fileID: 8568510555476089995, guid: 4e34273d79ab7ae4bb95a87eca38c3dd, type: 3}
 --- !u!1 &2059716601
 GameObject:
   m_ObjectHideFlags: 0
