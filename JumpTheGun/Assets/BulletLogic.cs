@@ -14,7 +14,7 @@ public class BulletLogic : MonoBehaviour
         
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collision)
     {
         Destroy(gameObject);
     }

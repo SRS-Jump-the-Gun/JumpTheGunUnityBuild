@@ -5,6 +5,7 @@ public class PlayerShooting : MonoBehaviour
 
     [SerializeField] private Camera playerCamera;
     [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private float bulletSpd = 50f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -16,8 +17,12 @@ public class PlayerShooting : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Instantiate(bulletPrefab, transform.position + playerCamera.transform.forward + Vector3.up, transform.rotation);
-
+            GameObject bulletObj = Instantiate(bulletPrefab, playerCamera.transform.position + playerCamera.transform.forward, transform.rotation);
+            Rigidbody rb = bulletObj.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.linearVelocity = playerCamera.transform.forward * bulletSpd; // Shoot it forward
+            }
         }
     }
 }
