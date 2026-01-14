@@ -11,7 +11,7 @@ public class BulletLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        StartCoroutine(DestroyBullet(2.5f));
+        StartCoroutine(DestroyBullet(0.5f));
     }
 
     private System.Collections.IEnumerator DestroyBullet(float delay)
