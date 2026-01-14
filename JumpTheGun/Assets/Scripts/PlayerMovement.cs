@@ -34,7 +34,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask wallLayer; 
 
 
-    [Header("Charge Settings")]
+    [Header("Launch Settings")]
     public float launchSpeed = 30f;
     public float launchDamping = 2f; // how fast the launch slows down   
 
@@ -61,6 +61,14 @@ public class PlayerMovement : MonoBehaviour
     // handle left mouse button hold
     private Vector3 launchDirection = Vector3.zero;
 
+    // Singleton of the movement script
+    public static PlayerMovement _movement; // Singleton reference
+
+
+    void Awake()
+    {
+        _movement = this;
+    }
 
     void Start()
     {
@@ -292,5 +300,10 @@ void HandleWallJump()
     public bool isSlidingPublic()
     { 
         return isSliding;
+    }
+
+    public void setLaunchSpeed(float newSpeed)
+    {
+        launchSpeed = newSpeed;
     }
 }
