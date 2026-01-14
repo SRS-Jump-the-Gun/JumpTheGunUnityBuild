@@ -11,11 +11,12 @@ public class BulletLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        StartCoroutine(DestroyBullet(2.5f));
     }
 
-    private void OnTriggerEnter(Collider collision)
+    private System.Collections.IEnumerator DestroyBullet(float delay)
     {
+        yield return new WaitForSeconds(delay);
         Destroy(gameObject);
     }
 }
