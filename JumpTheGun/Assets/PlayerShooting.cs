@@ -6,40 +6,51 @@ public class PlayerShooting : MonoBehaviour
 
     [SerializeField] private Camera playerCamera;
     [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] TMP_Text ammoCount;
+    [SerializeField] TMP_Text ammoText;
 
     [SerializeField] private float bulletSpd = 50f;
     [SerializeField] private int spawnCount = 12;
     [SerializeField] private float coneAngle = 15f;
     [SerializeField] private int maxAmmo = 2;
-    [SerializeField] private float reloadDelay = 0.2f;
+    [SerializeField] private float reloadDelay = 0.3f;
     private int currentAmmo;
-    
+    private bool isReloading = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         currentAmmo = maxAmmo;
-        ammoCount.text = currentAmmo.ToString();
+        ammoText.text = currentAmmo.ToString();
     }
 
     // Update is called once per frame
     void Update()
     {
         SpawnBurst();
-        StaggeredReload();
+        if (Input.GetKeyDown(KeyCode.R) && !isReloading && currentAmmo < maxAmmo)
+        {
+            StartCoroutine(StartReloading());
+        }
+        // idk why the launch speed resets weirdly without this
+        if (currentAmmo > 0)
+        { 
+            PlayerMovement._movement.resetLaunchSpeed();
+        }
     }
 
     private void SpawnBurst()
     {
         if(currentAmmo <= 0)
         {
-            PlayerMovement._movement.setLaunchSpeed(0f);
+            PlayerMovement._movement.noLaunchSpeed();
             return;
         }
         if (!Input.GetMouseButtonUp(0))
         {
             return;
         }
+        Debug.Log(currentAmmo);
+        Debug.Log(PlayerMovement._movement.getLaunchSpeed());
         for (int i = 0; i < spawnCount; i++)
         {
             Quaternion spread = Quaternion.Euler(
@@ -61,32 +72,42 @@ public class PlayerShooting : MonoBehaviour
         }
         // decrement ammo and update UI
         currentAmmo--;
-        ammoCount.text = currentAmmo.ToString();
+        ammoText.text = currentAmmo.ToString();
     }
 
-    private void Reload()
+    //not used yet - instant reload for testing
+    private void InstantReload()
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
             currentAmmo = maxAmmo;
-            ammoCount.text = currentAmmo.ToString();
+            ammoText.text = currentAmmo.ToString();
         }
     }
 
-    private void StaggeredReload()
+    private System.Collections.IEnumerator StartReloading()
     {
-        //future plans to make it cancelable
-        if (Input.GetKeyDown(KeyCode.R))
+        isReloading = true;
+
+        // Reset knockback to original value as soon as we start loading the first shell
+        PlayerMovement._movement.resetLaunchSpeed();
+
+        while (currentAmmo < maxAmmo)
         {
-            while(currentAmmo < maxAmmo)
-                StartCoroutine(startReloading(reloadDelay));
-        }
-    }
+            // 1. Wait for the delay
+            yield return new WaitForSeconds(reloadDelay);
 
-    private System.Collections.IEnumerator startReloading(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        currentAmmo++;
-        ammoCount.text = currentAmmo.ToString();
+            // 2. Add the ammo
+            currentAmmo++;
+            ammoText.text = currentAmmo.ToString();
+
+            // 3. Play sound or animation here (optional)
+            Debug.Log("Shell Inserted...");
+
+            // FUTURE CANCEL LOGIC:
+            // if (Input.GetButtonDown("Fire1")) break; 
+        }
+
+        isReloading = false;
     }
 }

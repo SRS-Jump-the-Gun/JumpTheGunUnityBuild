@@ -35,7 +35,8 @@ public class PlayerMovement : MonoBehaviour
 
 
     [Header("Launch Settings")]
-    public float launchSpeed = 30f;
+    public float MaxLaunchSpeed = 30f;
+    private float launchSpeed;
     public float launchDamping = 2f; // how fast the launch slows down   
 
     private float slideBufferTimer;
@@ -72,6 +73,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        launchSpeed = MaxLaunchSpeed;
         characterController = GetComponent<CharacterController>();
         targetHeight = defaultHeight;
 
@@ -302,8 +304,18 @@ void HandleWallJump()
         return isSliding;
     }
 
-    public void setLaunchSpeed(float newSpeed)
+    public void noLaunchSpeed()
     {
-        launchSpeed = newSpeed;
+        launchSpeed = 0f;
+    }
+
+    public void resetLaunchSpeed()
+    {
+        launchSpeed = MaxLaunchSpeed;
+    }
+
+    public float getLaunchSpeed()
+    {
+        return launchSpeed;
     }
 }
