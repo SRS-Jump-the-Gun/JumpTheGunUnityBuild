@@ -2696,7 +2696,7 @@ MonoBehaviour:
   runSpeed: 8
   crouchSpeed: 3
   jumpPower: 14
-  gravity: -25
+  gravity: 10
   lookSpeed: 2
   lookXLimit: 85
   defaultHeight: 2
@@ -2934,6 +2934,10 @@ PrefabInstance:
     - target: {fileID: 690203382132137846, guid: 26914ef2e0897b549aee4c6732f92dea, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2184116419127862446, guid: 26914ef2e0897b549aee4c6732f92dea, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2266882514194839551, guid: 26914ef2e0897b549aee4c6732f92dea, type: 3}
       propertyPath: m_Name

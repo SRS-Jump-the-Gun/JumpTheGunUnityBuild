@@ -1,7 +1,8 @@
+
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerMovement : MonoBehaviour
+public class testmovement : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Camera playerCamera;
@@ -19,24 +20,20 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Crouch")]
     [SerializeField] private float defaultHeight = 5f;
-    [SerializeField] private float crouchHeight = 0.5f;
+    [SerializeField] private float crouchHeight = 1f;
     [SerializeField] private float crouchSmoothSpeed = 10f;
-
+    
     [Header("Slide")]
     [SerializeField] private float slideSpeed = 14f;
     [SerializeField] private float slideDuration = 0.75f;
     [SerializeField] private float slideInputBufferTime = 0.2f;
+
     [Header("Wall Jump")]
     [SerializeField] private float wallJumpForce = 10f;
     [SerializeField] private float wallJumpUpwardForce = 7f;
     [SerializeField] private float wallCheckDistance = 0.7f;
     [SerializeField] private float wallJumpCooldown = 0.3f;
     [SerializeField] private LayerMask wallLayer; 
-
-
-    [Header("Charge Settings")]
-    public float launchSpeed = 30f;
-    public float launchDamping = 2f; // how fast the launch slows down   
 
     private float slideBufferTimer;
     private bool isSliding;
@@ -49,18 +46,14 @@ public class PlayerMovement : MonoBehaviour
     private float targetHeight;
 
     private CharacterController characterController;
-    private Vector3 characterDirection = Vector3.zero;
     private bool canMove = true;
-    private bool isLaunching = false;
     private bool isCrouching;
-        // Wall jump variables
+
+    // Wall jump variables
     private bool isWallJumping;
     private float wallJumpTimer;
     private Vector3 wallNormal;
     
-    // handle left mouse button hold
-    private Vector3 launchDirection = Vector3.zero;
-
 
     void Start()
     {
@@ -77,12 +70,7 @@ public class PlayerMovement : MonoBehaviour
         HandleCrouch();
         HandleMouseLook();
         HandleSlide();
-        HandleLeftClick();
         HandleWallJump();
-        DampenHorizontalVelocity();
-
-        characterDirection = moveDirection + launchDirection;
-        characterController.Move(characterDirection * Time.deltaTime);
     }
 
     void HandleMovement()
@@ -187,22 +175,22 @@ public class PlayerMovement : MonoBehaviour
         if (isSliding)
         {
             slideTimer -= Time.deltaTime;
+            targetHeight = crouchHeight;
+            characterController.height = Mathf.Lerp(
+                characterController.height,
+                targetHeight,
+                Time.deltaTime * crouchSmoothSpeed
+            );
             Vector3 slideMove = slideDirection * slideSpeed;
             slideMove.y = moveDirection.y;
             slideMove.y -= gravity * Time.deltaTime;
 
-            if (Input.GetButton("Jump"))
+            characterController.Move(slideMove * Time.deltaTime);
+            if(Input.GetButton("Jump"))
             {
                 isSliding = false;
+                moveDirection.y = jumpPower;
             }
-
-            characterController.Move(slideMove * Time.deltaTime);
-
-            characterController.height = Mathf.Lerp(
-            characterController.height,
-            crouchHeight,
-            Time.deltaTime * crouchSmoothSpeed
-        );
             if (slideTimer <= 0)
             {
                 isSliding = false;
@@ -210,36 +198,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void HandleLeftClick()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            // Launch opposite of where the camera is looking
-            launchDirection = -playerCamera.transform.forward * launchSpeed;
-
-            // Optional: cancel vertical movement so it feels snappy
-            
-            //launchDirection.y = 10f;
-
-            isLaunching = true;
-        }
-    }
-void DampenHorizontalVelocity()
-{
-    if (!isLaunching) return;
-
-    launchDirection = Vector3.Lerp(
-        launchDirection,
-        Vector3.zero,
-        Time.deltaTime * launchDamping
-    );
-
-    if (launchDirection.magnitude < 0.1f)
-    {
-        launchDirection = Vector3.zero;
-        isLaunching = false;
-    }
-}
 void HandleWallJump()
 {
     // Countdown wall jump timer
@@ -289,8 +247,4 @@ void HandleWallJump()
         
     }
 }
-    public bool isSlidingPublic()
-    { 
-        return isSliding;
-    }
 }
