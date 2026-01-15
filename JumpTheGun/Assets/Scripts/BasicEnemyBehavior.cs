@@ -70,4 +70,5 @@ public class BasicEnemyBehavior : MonoBehaviour
             chasing = true;
         }
     }
+
 }
