@@ -16,11 +16,19 @@ public class zoneDetector : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        /*
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Enemy") && Input.GetMouseButtonUp(0))
         {
-            other.GetComponent<scriptname>().takeDamage();
+            Destroy(other.gameObject);
+            //other.GetComponent<scriptname>().takeDamage();
         }
-        */
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Enemy") && Input.GetMouseButtonUp(0))
+        {
+            Destroy(other.gameObject);
+            //other.GetComponent<scriptname>().takeDamage();
+        }
     }
 }

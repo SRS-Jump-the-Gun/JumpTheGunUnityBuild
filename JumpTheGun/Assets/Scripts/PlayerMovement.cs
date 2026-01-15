@@ -224,7 +224,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleLeftClick()
     {
-        if (Input.GetMouseButtonDown(0) && leftClickAllowed)
+        if (Input.GetMouseButtonUp(0) && leftClickAllowed)
         {
             // Launch opposite of where the camera is looking
             launchDirection = -playerCamera.transform.forward * launchSpeed;
