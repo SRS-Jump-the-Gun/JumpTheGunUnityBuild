@@ -1,0 +1,11 @@
+Model Information:
+* title:	Shotgun
+* source:	https://sketchfab.com/3d-models/shotgun-e7b910a0f9544e24a1906128f9f46a7d
+* author:	A7mad207 (https://sketchfab.com/A7mad207)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Shotgun" (https://sketchfab.com/3d-models/shotgun-e7b910a0f9544e24a1906128f9f46a7d) by A7mad207 (https://sketchfab.com/A7mad207) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
