@@ -285,6 +285,7 @@ void HandleWallJump()
             
             // Optional: Draw debug line to see wall detection
             Debug.DrawRay(transform.position, dir * wallCheckDistance, Color.green);
+            Debug.Log("Wall detected for wall jump!");
             break;
         }
     }
