@@ -65,6 +65,8 @@ public class PlayerMovement : MonoBehaviour
     // Singleton of the movement script
     public static PlayerMovement _movement; // Singleton reference
 
+    private bool leftClickAllowed = true;
+
 
     void Awake()
     {
@@ -222,7 +224,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleLeftClick()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && leftClickAllowed)
         {
             // Launch opposite of where the camera is looking
             launchDirection = -playerCamera.transform.forward * launchSpeed;
@@ -317,5 +319,10 @@ void HandleWallJump()
     public float getLaunchSpeed()
     {
         return launchSpeed;
+    }
+
+    public void setLeftClickAllowed(bool allowed)
+    {
+        leftClickAllowed = allowed;
     }
 }

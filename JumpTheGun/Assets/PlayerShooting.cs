@@ -34,7 +34,7 @@ public class PlayerShooting : MonoBehaviour
         // idk why the launch speed resets weirdly without this
         if (currentAmmo > 0)
         { 
-            PlayerMovement._movement.resetLaunchSpeed();
+            PlayerMovement._movement.setLeftClickAllowed(true);
         }
     }
 
@@ -42,17 +42,20 @@ public class PlayerShooting : MonoBehaviour
     {
         if(currentAmmo <= 0)
         {
-            PlayerMovement._movement.noLaunchSpeed();
+            PlayerMovement._movement.setLeftClickAllowed(false);
+            return;
+        }
+        if (isReloading)
+        {
             return;
         }
         if (!Input.GetMouseButtonUp(0))
         {
             return;
         }
-        Debug.Log(currentAmmo);
-        Debug.Log(PlayerMovement._movement.getLaunchSpeed());
         for (int i = 0; i < spawnCount; i++)
         {
+            // random rotation within cone angle for shotgun spread
             Quaternion spread = Quaternion.Euler(
                 Random.Range(-coneAngle, coneAngle),
                 Random.Range(-coneAngle, coneAngle),
@@ -63,7 +66,6 @@ public class PlayerShooting : MonoBehaviour
 
             GameObject bulletObj = Instantiate(bulletPrefab, playerCamera.transform.position + playerCamera.transform.forward, Quaternion.LookRotation(finalDirection));
 
-            // 4. Apply Velocity
             Rigidbody rb = bulletObj.GetComponent<Rigidbody>();
             if (rb != null)
             {
@@ -90,22 +92,19 @@ public class PlayerShooting : MonoBehaviour
         isReloading = true;
 
         // Reset knockback to original value as soon as we start loading the first shell
-        PlayerMovement._movement.resetLaunchSpeed();
+        //PlayerMovement._movement.setLeftClickAllowed(true);
 
         while (currentAmmo < maxAmmo)
         {
-            // 1. Wait for the delay
             yield return new WaitForSeconds(reloadDelay);
 
-            // 2. Add the ammo
             currentAmmo++;
             ammoText.text = currentAmmo.ToString();
 
-            // 3. Play sound or animation here (optional)
-            Debug.Log("Shell Inserted...");
+            // Do later play sound or animation here
+            
 
-            // FUTURE CANCEL LOGIC:
-            // if (Input.GetButtonDown("Fire1")) break; 
+            if (Input.GetMouseButtonUp(0)) break; 
         }
 
         isReloading = false;
