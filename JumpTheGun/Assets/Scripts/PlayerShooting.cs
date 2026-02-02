@@ -40,16 +40,16 @@ public class PlayerShooting : MonoBehaviour
 
     private void SpawnBurst()
     {
-        if(currentAmmo <= 0)
+        if(currentAmmo <= 0) // If player doesnt have ammo, cant shoot
         {
             PlayerMovement._movement.setLeftClickAllowed(false);
             return;
         }
-        if (isReloading)
+        if (isReloading)    // If player is currently reloading, cant shoot
         {
             return;
         }
-        if (!Input.GetMouseButtonUp(0))
+        if (!Input.GetMouseButtonUp(0)) // If player is not pressing left click, dont shoot
         {
             return;
         }
@@ -69,7 +69,7 @@ public class PlayerShooting : MonoBehaviour
             Rigidbody rb = bulletObj.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.linearVelocity = finalDirection * bulletSpd;
+                rb.linearVelocity = finalDirection * bulletSpd; 
             }
         }
         // decrement ammo and update UI
