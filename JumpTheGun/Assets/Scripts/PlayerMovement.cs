@@ -325,4 +325,4 @@ public class PlayerMovement : MonoBehaviour
     {
         leftClickAllowed = allowed;
     }
-}
+}  

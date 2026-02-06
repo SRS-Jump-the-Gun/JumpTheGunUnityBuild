@@ -26,6 +26,7 @@ public class PlayerShooting : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // IF you shotgun equped 
         SpawnBurst();
         if (Input.GetKeyDown(KeyCode.R) && !isReloading && currentAmmo < maxAmmo)
         {
@@ -36,6 +37,8 @@ public class PlayerShooting : MonoBehaviour
         { 
             PlayerMovement._movement.setLeftClickAllowed(true);
         }
+
+        // if pistol equipped, just shoot one bullet with no spread and instant reload
     }
 
     private void SpawnBurst()
@@ -49,7 +52,7 @@ public class PlayerShooting : MonoBehaviour
         {
             return;
         }
-        if (!Input.GetMouseButtonUp(0)) // If player is not pressing left click, dont shoot
+        if (!Input.GetMouseButtonDown(0)) // If player is not pressing left click, dont shoot
         {
             return;
         }
@@ -85,6 +88,8 @@ public class PlayerShooting : MonoBehaviour
             currentAmmo = maxAmmo;
             ammoText.text = currentAmmo.ToString();
         }
+        
+
     }
 
     private System.Collections.IEnumerator StartReloading()
@@ -102,8 +107,6 @@ public class PlayerShooting : MonoBehaviour
             ammoText.text = currentAmmo.ToString();
 
             // Do later play sound or animation here
-            
-
             if (Input.GetMouseButtonUp(0)) break; 
         }
 
