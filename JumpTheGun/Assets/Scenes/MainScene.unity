@@ -196,6 +196,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2058494036}
     - target: {fileID: 5264486283494991538, guid: 26914ef2e0897b549aee4c6732f92dea, type: 3}
+      propertyPath: meleeRange
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5264486283494991538, guid: 26914ef2e0897b549aee4c6732f92dea, type: 3}
       propertyPath: 'destinations.Array.data[0]'
       value: 
       objectReference: {fileID: 1205440415}
@@ -15954,6 +15958,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 2058494036}
+    - target: {fileID: 5264486283494991538, guid: 26914ef2e0897b549aee4c6732f92dea, type: 3}
+      propertyPath: meleeRange
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 5264486283494991538, guid: 26914ef2e0897b549aee4c6732f92dea, type: 3}
       propertyPath: 'destinations.Array.data[0]'
       value: 
