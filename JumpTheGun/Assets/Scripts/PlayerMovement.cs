@@ -14,6 +14,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float gravity = 20f;
     [SerializeField] private float control = 30f;
     [SerializeField] private float airControlMultiplier = 0.3f;
+    public bool hasDoubleJump = false;
+    private int jumpCount = 0; 
 
     [Header("Camera")]
     [SerializeField] private float lookSpeed = 2f;
@@ -129,17 +131,25 @@ public class PlayerMovement : MonoBehaviour
         if (characterController.isGrounded)
         {
             isWallJumping = false; // Reset wall jump state when landing
-            
-            if (Input.GetButton("Jump") && canMove && !isCrouching)
+            jumpCount = 0;
+            if (Input.GetButtonDown("Jump") && canMove && !isCrouching)
             {
                 wallJumpTimer = wallJumpCooldown;
                 moveDirection.y = jumpPower;
+                jumpCount++;
             }
         }
         else
         {
+            if (Input.GetButtonDown("Jump") && canMove && !isCrouching && jumpCount ==1 && hasDoubleJump)
+            {
+                Debug.Log("here");
+                jumpCount++;
+                moveDirection.y = jumpPower;
+            }
             moveDirection.y -= gravity * Time.deltaTime;
         }
+
 
         characterController.Move(moveDirection * Time.deltaTime);
     }
