@@ -23,6 +23,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (currentHP == 0)
         {
             Debug.Log("Player died.");
+            Destroy(gameObject);
         }
     }
 }

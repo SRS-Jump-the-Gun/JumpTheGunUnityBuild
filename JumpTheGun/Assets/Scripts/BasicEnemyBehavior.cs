@@ -21,7 +21,7 @@ public class BasicEnemyBehavior : MonoBehaviour
     public Transform[] destinations;
 
     [Header("Melee Attack")]
-    [SerializeField] private float meleeRange = 1.5f;
+    [SerializeField] private float meleeRange = 5f;
     [SerializeField] private float attackCooldown = 1.0f;
     [SerializeField] private int damage = 10;
 
