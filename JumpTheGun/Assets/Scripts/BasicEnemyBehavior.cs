@@ -16,13 +16,24 @@ public class BasicEnemyBehavior : MonoBehaviour
     bool chasing = false;
 
     [SerializeField] GameObject player;
+    private IDamageable playerDamageable;
+    [Header("Patrol")]
     public Transform[] destinations;
 
+    [Header("Melee Attack")]
+    [SerializeField] private float meleeRange = 1.5f;
+    [SerializeField] private float attackCooldown = 1.0f;
+    [SerializeField] private int damage = 10;
+
+    [SerializeField] private bool stopToAttack = true; // Whether to stop moving during an attack
+    private float nextAttackTime = 0f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        agent.destination = destinations[currentDestination].position;
+        CachePlayerDamageable();
+        if (destinations != null && destinations.Length > 0)
+            agent.destination = destinations[currentDestination].position;
     }
 
     private void Awake()
@@ -33,13 +44,42 @@ public class BasicEnemyBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (agent.remainingDistance <= 0.5f && !chasing)
+        if (!chasing)
         {
-            agent.destination = destinations[getNextDestination(currentDestination)].position;
+            if (agent.remainingDistance <= 0.5f && !chasing)
+            {
+                agent.destination = destinations[getNextDestination(currentDestination)].position;
+            }
+            return;
         }
-        if (chasing)
+        if (player == null) return;
+        float dist = Vector3.Distance(transform.position, player.transform.position);
+
+        if (dist <= meleeRange)
         {
+            TryMeleeAttack();
+            if (stopToAttack)
+            {
+                agent.isStopped = true;
+                FacePlayer();
+            }
+        }
+        else
+        {
+            agent.isStopped = false;
             chase();
+        }
+    }
+
+    void CachePlayerDamageable()
+    {
+        playerDamageable = null;
+        if (player == null) return;
+
+        playerDamageable = player.GetComponent<IDamageable>();
+        if (playerDamageable == null)
+        {
+            playerDamageable = player.GetComponentInChildren<IDamageable>();
         }
     }
 
@@ -61,13 +101,41 @@ public class BasicEnemyBehavior : MonoBehaviour
         agent.SetDestination(player.transform.position);
     }
 
+    void FacePlayer()
+    {
+        Vector3 dir = player.transform.position - transform.position;
+        dir.y = 0f;
+        if (dir.sqrMagnitude < 0.0001f) return;
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 10f);
+    }
+
+    void TryMeleeAttack()
+    {
+        if (Time.time < nextAttackTime) return;
+        if (playerDamageable == null) CachePlayerDamageable();
+        if (playerDamageable != null)
+        {
+            playerDamageable.TakeDamage(damage);
+            Debug.Log($"Enemy melee hit for {damage}!");
+        }
+        else
+        {
+            Debug.LogWarning("Enemy tried to attack, but player has no IDamageable component.");
+        }
+
+        nextAttackTime = Time.time + attackCooldown;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             Debug.Log("Found player!");
-            chase();
+            player = other.gameObject;
+            CachePlayerDamageable();
             chasing = true;
+            agent.isStopped = false;
+            chase();
         }
     }
 

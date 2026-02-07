@@ -2672,6 +2672,7 @@ GameObject:
   - component: {fileID: 2058494038}
   - component: {fileID: 2058494037}
   - component: {fileID: 2058494040}
+  - component: {fileID: 2058494041}
   m_Layer: 0
   m_Name: PlayerF
   m_TagString: Player
@@ -2697,6 +2698,9 @@ MonoBehaviour:
   crouchSpeed: 3
   jumpPower: 14
   gravity: 10
+  control: 30
+  airControlMultiplier: 0.3
+  hasDoubleJump: 0
   lookSpeed: 2
   lookXLimit: 85
   defaultHeight: 2
@@ -2712,7 +2716,8 @@ MonoBehaviour:
   wallLayer:
     serializedVersion: 2
     m_Bits: 0
-  launchSpeed: 30
+  wallJumpControlMultiplier: 0.1
+  MaxLaunchSpeed: 30
   launchDamping: 2
 --- !u!143 &2058494038
 CharacterController:
@@ -2779,6 +2784,20 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2058494041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2058494036}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc16a4477f85f4c78af2c152f69d8483, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHP: 100
+  currentHP: 0
 --- !u!1 &2096730859
 GameObject:
   m_ObjectHideFlags: 0
@@ -2947,6 +2966,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 2058494036}
+    - target: {fileID: 5264486283494991538, guid: 26914ef2e0897b549aee4c6732f92dea, type: 3}
+      propertyPath: meleeRange
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5264486283494991538, guid: 26914ef2e0897b549aee4c6732f92dea, type: 3}
       propertyPath: 'destinations.Array.data[0]'
       value: 
