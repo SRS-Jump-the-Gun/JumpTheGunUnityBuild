@@ -1,20 +1,19 @@
 using UnityEngine;
 using TMPro;
 
-public class PlayerShooting : MonoBehaviour
+public class PlayerShooting : Gun
 {
-
-    [SerializeField] private Camera playerCamera;
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] TMP_Text ammoText;
 
     [SerializeField] private float bulletSpd = 50f;
     [SerializeField] private int spawnCount = 12;
     [SerializeField] private float coneAngle = 15f;
-    [SerializeField] private int maxAmmo = 2;
-    [SerializeField] private float reloadDelay = 0.3f;
-    private int currentAmmo;
-    private bool isReloading = false;
+
+    //Figure out how to fix these and make it so we SET them here!
+    
+    //[SerializeField] protected int maxAmmo = 2;
+    //[SerializeField] protected float reloadDelay = 0.3f;
+
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -41,6 +40,7 @@ public class PlayerShooting : MonoBehaviour
         // if pistol equipped, just shoot one bullet with no spread and instant reload
     }
 
+    //Shotgun projectile burst
     private void SpawnBurst()
     {
         if(currentAmmo <= 0) // If player doesnt have ammo, cant shoot
@@ -92,24 +92,4 @@ public class PlayerShooting : MonoBehaviour
 
     }
 
-    private System.Collections.IEnumerator StartReloading()
-    {
-        isReloading = true;
-
-        // Reset knockback to original value as soon as we start loading the first shell
-        //PlayerMovement._movement.setLeftClickAllowed(true);
-
-        while (currentAmmo < maxAmmo)
-        {
-            yield return new WaitForSeconds(reloadDelay);
-
-            currentAmmo++;
-            ammoText.text = currentAmmo.ToString();
-
-            // Do later play sound or animation here
-            if (Input.GetMouseButtonUp(0)) break; 
-        }
-
-        isReloading = false;
-    }
 }
