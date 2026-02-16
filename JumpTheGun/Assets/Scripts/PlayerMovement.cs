@@ -14,9 +14,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float gravity = 20f;
     [SerializeField] private float control = 30f;
     [SerializeField] private float airControlMultiplier = 0.3f;
-    public bool hasDoubleJump = false;
-    private int jumpCount = 0; 
-
+ 
     [Header("Camera")]
     [SerializeField] private float lookSpeed = 2f;
     [SerializeField] private float lookXLimit = 45f;
@@ -55,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
     private float targetHeight;
 
     private CharacterController characterController;
+    private DoubleJump doubleJump; 
     private Vector3 characterDirection = Vector3.zero;
     private bool canMove = true;
     private bool isLaunching = false;
@@ -82,6 +81,7 @@ public class PlayerMovement : MonoBehaviour
     {
         launchSpeed = MaxLaunchSpeed;
         characterController = GetComponent<CharacterController>();
+        doubleJump = GetComponent<DoubleJump>(); 
         targetHeight = defaultHeight;
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -130,22 +130,25 @@ public class PlayerMovement : MonoBehaviour
 
         if (characterController.isGrounded)
         {
-            isWallJumping = false; // Reset wall jump state when landing
-            jumpCount = 0;
             if (Input.GetButtonDown("Jump") && canMove && !isCrouching)
             {
                 wallJumpTimer = wallJumpCooldown;
                 moveDirection.y = jumpPower;
-                jumpCount++;
+                if (doubleJump != null)
+                {
+                    doubleJump.OnJump();
+                }
             }
         }
         else
         {
-            if (Input.GetButtonDown("Jump") && canMove && !isCrouching && jumpCount ==1 && hasDoubleJump)
+            if (Input.GetButtonDown("Jump") && canMove && !isCrouching && doubleJump != null)
             {
-                Debug.Log("here");
-                jumpCount++;
-                moveDirection.y = jumpPower;
+                float doubleJumpForce = doubleJump.TryDoubleJump();
+                if (doubleJumpForce > 0f)
+                {
+                    moveDirection.y = doubleJumpForce;
+                }
             }
             moveDirection.y -= gravity * Time.deltaTime;
         }
