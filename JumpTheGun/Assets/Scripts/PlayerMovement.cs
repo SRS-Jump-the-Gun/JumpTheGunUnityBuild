@@ -226,6 +226,10 @@ public class PlayerMovement : MonoBehaviour
             if (Input.GetButton("Jump"))
             {
                 isSliding = false;
+                moveDirection.y = jumpPower;
+                if (doubleJump != null)                {
+                    doubleJump.OnJump();
+                }       
             }
 
             characterController.Move(slideMove * Time.deltaTime);
@@ -244,7 +248,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleLeftClick()
     {
-        if (Input.GetMouseButtonUp(0) && leftClickAllowed)
+        if (Input.GetMouseButtonDown(0) && leftClickAllowed)
         {
             // Launch opposite of where the camera is looking
             launchDirection = -playerCamera.transform.forward * launchSpeed;
