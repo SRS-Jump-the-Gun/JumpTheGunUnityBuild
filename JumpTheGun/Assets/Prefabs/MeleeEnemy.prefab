@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 690203382132137846}
   - component: {fileID: 2184116419127862446}
-  - component: {fileID: 5264486283494991538}
   - component: {fileID: 494645660970631802}
   - component: {fileID: 3448442160662050720}
   - component: {fileID: 2290692531699014686}
+  - component: {fileID: 5551816544710129417}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: MeleeEnemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,27 +60,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &5264486283494991538
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2266882514194839551}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 952b5b7e11115384bb19f1645916a472, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  destinations: []
-  chaseRange: 20
-  loseRange: 20
-  targetSampleDistance: 2
-  meleeRange: 2
-  attackCooldown: 1
-  damage: 10
-  stopToAttack: 0
 --- !u!195 &494645660970631802
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -151,6 +130,24 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &5551816544710129417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2266882514194839551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a961fd15f97d3470aa7b3c034a922adb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chaseRange: 15
+  loseRange: 20
+  attackRange: 2
+  attackCooldown: 1
+  destinations: []
+  damage: 10
 --- !u!1 &5647940611132109799
 GameObject:
   m_ObjectHideFlags: 0
