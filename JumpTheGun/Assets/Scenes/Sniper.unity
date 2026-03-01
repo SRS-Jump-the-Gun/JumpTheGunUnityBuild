@@ -227,6 +227,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &33113632
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 33113633}
+  m_Layer: 7
+  m_Name: Firepoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &33113633
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 33113632}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.03, y: 1.61, z: 1.238}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2094157086}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &168404842
 GameObject:
   m_ObjectHideFlags: 0
@@ -1280,13 +1311,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: SniperEnemy
       objectReference: {fileID: 0}
+    - target: {fileID: 3377437751881517945, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 4052848576773399536, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15.5
       objectReference: {fileID: 0}
     - target: {fileID: 4052848576773399536, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.92
+      value: 0.07
       objectReference: {fileID: 0}
     - target: {fileID: 4052848576773399536, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1332,9 +1367,25 @@ PrefabInstance:
       propertyPath: 'destinations.Array.data[1]'
       value: 
       objectReference: {fileID: 1579622430}
-    m_RemovedComponents: []
+    - target: {fileID: 8982015649447512975, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
+      propertyPath: damage
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8982015649447512975, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 2058494036}
+    - target: {fileID: 9208453934942572385, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 2193771716016671526, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4052848576773399536, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 33113633}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3377437751881517945, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
       insertIndex: -1
@@ -2888,18 +2939,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec7193ae8edea45f4801af7158437789, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 2058494036}
   chaseRange: 5
   loseRange: 20
-  attackRange: 20
+  attackRange: 50
   attackCooldown: 1
   destinations: []
   laserLine: {fileID: 2094157080}
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 8
-  firePoint: {fileID: 2094157086}
+    m_Bits: 73
+  firePoint: {fileID: 33113633}
   dotThreshold: 0.5
   damage: 10
+  timeToLock: 3
 --- !u!120 &2094157080
 LineRenderer:
   serializedVersion: 2
@@ -3024,7 +3077,7 @@ GameObject:
   - component: {fileID: 2096730862}
   - component: {fileID: 2096730861}
   - component: {fileID: 2096730860}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
