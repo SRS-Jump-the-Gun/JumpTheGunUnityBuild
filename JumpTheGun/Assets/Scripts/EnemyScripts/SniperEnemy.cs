@@ -9,63 +9,102 @@ public class SniperEnemy : EnemyBase
     [Range(0, 1)] public float dotThreshold = 0.5f;
     [SerializeField] private int damage = 40;
 
+    [Header("Lock-On Mechanics")]
+    public float timeToLock = 3.0f;
+    private float lockOnTimer = 0f;
+
     protected override void Update()
     {
-        // Run the base movement/logic first
-        base.Update();
+        // We do NOT call base.Update() here because we want to 
+        // override the movement/attack logic entirely for the Sniper.
+        
+        if (player == null || !agent.isOnNavMesh) return;
 
-        // Then handle the constant Laser visual logic
+        float dist = Vector3.Distance(transform.position, player.transform.position);
+        
+        // Handle movement (Stops moving when in range)
+        if (dist <= attackRange)
+        {
+            agent.isStopped = true;
+            FacePlayer();
+        }
+        else
+        {
+            agent.isStopped = false;
+            agent.SetDestination(player.transform.position);
+        }
+
         HandleLaserVisuals();
     }
 
-  private void HandleLaserVisuals()
-{
-    if (player == null || firePoint == null || laserLine == null) return;
-    Vector3 startPos = firePoint.position + Vector3.up * 1.0f; ;
-    Vector3 targetPos = player.transform.position + Vector3.up * 1.0f;
-    Vector3 dirToPlayer = (targetPos - startPos).normalized;
-
-    float dot = Vector3.Dot(transform.forward, dirToPlayer);
-
-    if (dot > dotThreshold)
+    private void HandleLaserVisuals()
     {
-        laserLine.enabled = true;
-        laserLine.SetPosition(0, startPos);
-      
-    // This is your RED ray - if you see Green/Blue but not Red, the Dot check failed
-        Debug.DrawRay(startPos, dirToPlayer * chaseRange, Color.red);
+        if (player == null || firePoint == null || laserLine == null) return;
+        
+        Vector3 startPos = firePoint.position;
+        Vector3 targetPos = player.transform.position;
+        Vector3 dirToPlayer = (targetPos - startPos).normalized;
 
-        if (Physics.Raycast(startPos, dirToPlayer, out RaycastHit hit, chaseRange, obstacleLayer))
+        float dot = Vector3.Dot(transform.forward, dirToPlayer);
+
+        if (dot > dotThreshold)
+        {
+            laserLine.enabled = true;
+            laserLine.SetPosition(0, startPos);
+
+            if (Physics.Raycast(startPos, dirToPlayer, out RaycastHit hit, attackRange, obstacleLayer))
             {
                 laserLine.SetPosition(1, hit.point);
-                Debug.Log(hit.point);
-        
-        }
+
+                if (hit.collider.CompareTag("Player"))
+                {
+                    lockOnTimer += Time.deltaTime;
+                    
+                    // Visual "Tell": Laser gets thicker as it gets closer to firing
+                    float progress = lockOnTimer / timeToLock;
+                    laserLine.startWidth = Mathf.Lerp(0.05f, 0.5f, progress);
+                    laserLine.endWidth = Mathf.Lerp(0.05f, 0.5f, progress);
+
+                    if (lockOnTimer >= timeToLock)
+                    {
+                        Attack(); 
+                        ResetLockOn(); 
+                        Debug.Log("Sniper Attack Executed!");
+                    }
+                }
+                else
+                {
+                    ResetLockOn();
+                    Debug.Log("Line of sight broken by obstacle: " + hit.collider.name);
+                }
+            }
             else
             {
-                Debug.Log("THIS IS RUNNING");
+                // If it hits nothing (sky), treat it as a break in line-of-sight
                 laserLine.SetPosition(1, targetPos);
+                ResetLockOn();
             }
+        }
+        else
+        {
+            laserLine.enabled = false;
+            ResetLockOn();
+        }
     }
-    else
-    {
-        laserLine.enabled = false;
-    }
-}
-    // This is called automatically by the Base class when in range/cooldown
+
     protected override void Attack()
     {
-        Debug.Log("Sniper Firing!");
-        
-        // Final check: Is the player actually visible?
-        Vector3 dir = (player.transform.position - firePoint.position).normalized;
-        if (Physics.Raycast(firePoint.position, dir, out RaycastHit hit, chaseRange))
+        Debug.Log("3-Second Lock Complete! Sniper Firing!");
+        playerDamageable?.TakeDamage(damage);
+    }
+
+    private void ResetLockOn()
+    {
+        lockOnTimer = 0;
+        if(laserLine != null)
         {
-            if (hit.collider.CompareTag("Player"))
-            {
-                playerDamageable.TakeDamage(damage);
-                // Optional: Trigger a muzzle flash or sound effect here
-            }
+            laserLine.startWidth = 0.05f;
+            laserLine.endWidth = 0.05f;
         }
     }
 }
