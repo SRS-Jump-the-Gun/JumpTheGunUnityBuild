@@ -2,21 +2,25 @@ using UnityEngine;
 
 public class BulletLogic : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public float speed = 20f;
+    public float lifetime = 5f;
+
     void Start()
     {
-        
+        // Destroy the bullet after a few seconds so they don't clutter the scene
+        Destroy(gameObject, lifetime);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        StartCoroutine(DestroyBullet(0.5f));
+        // Move forward every frame
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 
-    private System.Collections.IEnumerator DestroyBullet(float delay)
+    private void OnTriggerEnter(Collider other)
     {
-        yield return new WaitForSeconds(delay);
-        Destroy(gameObject);
+        // Handle hitting the player or walls
+        Debug.Log("Hit: " + other.name);
+        Destroy(gameObject); 
     }
 }

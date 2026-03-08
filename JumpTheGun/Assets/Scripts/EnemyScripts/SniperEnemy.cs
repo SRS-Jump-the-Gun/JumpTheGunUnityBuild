@@ -15,9 +15,7 @@ public class SniperEnemy : EnemyBase
 
     protected override void Update()
     {
-        // We do NOT call base.Update() here because we want to 
-        // override the movement/attack logic entirely for the Sniper.
-        
+
         if (player == null || !agent.isOnNavMesh) return;
 
         float dist = Vector3.Distance(transform.position, player.transform.position);

@@ -1392,7 +1392,10 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 8982015649447512975, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4052848576773399536, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1208286026}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3377437751881517945, guid: d609bfcaf677f4a8fa6ff2e27e28a85f, type: 3}
       insertIndex: -1
@@ -1616,6 +1619,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 89322332}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1208286025
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1208286026}
+  m_Layer: 7
+  m_Name: firepoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1208286026
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1208286025}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.05, y: 1.59, z: 0.659}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2094157086}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1239644616
 GameObject:
@@ -2956,9 +2990,10 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 201
-  firePoint: {fileID: 2094157086}
+  firePoint: {fileID: 1208286026}
   dotThreshold: 0.5
   damage: 10
+  timeToLock: 3
 --- !u!120 &2094157080
 LineRenderer:
   serializedVersion: 2
