@@ -6,15 +6,15 @@ public abstract class Gun : MonoBehaviour
     [SerializeField] protected Camera playerCamera;
     [SerializeField] protected GameObject bulletPrefab;
     [SerializeField] protected TMP_Text ammoText;
-    [SerializeField] protected int maxAmmo = 2;
-    [SerializeField] protected float reloadDelay = 0.3f;
-
+    [SerializeField] protected int maxAmmo;
+    [SerializeField] protected float reloadDelay;
+    protected GameObject collisionZone;
     protected int currentAmmo;
     protected bool isReloading = false;
 
 
     //May need to be fixed ------------------------------------
-    protected void Start()
+    protected virtual void Start()
     {
         currentAmmo = maxAmmo;
         ammoText.text = currentAmmo.ToString();
