@@ -14677,7 +14677,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1139710910}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Firepoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24081,12 +24081,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 641023244601482336, guid: f1906dc5313f84f8ba351bc40aad8aa8, type: 3}
+      propertyPath: m_AngularSpeed
+      value: 360
+      objectReference: {fileID: 0}
     - target: {fileID: 1246827528069982693, guid: f1906dc5313f84f8ba351bc40aad8aa8, type: 3}
       propertyPath: m_Name
-      value: Projectile Enemy
+      value: ProjectileEnemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 1246827528069982693, guid: f1906dc5313f84f8ba351bc40aad8aa8, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4636894156241939965, guid: f1906dc5313f84f8ba351bc40aad8aa8, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4842505526761744659, guid: f1906dc5313f84f8ba351bc40aad8aa8, type: 3}
+    - {fileID: 2441893807283202490, guid: f1906dc5313f84f8ba351bc40aad8aa8, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 552837695758975340, guid: f1906dc5313f84f8ba351bc40aad8aa8, type: 3}
@@ -24122,10 +24135,10 @@ MonoBehaviour:
   player: {fileID: 1271231109}
   chaseRange: 15
   loseRange: 20
-  attackRange: 2
+  attackRange: 15
   attackCooldown: 1
   destinations: []
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 8568510555476089995, guid: 4e34273d79ab7ae4bb95a87eca38c3dd, type: 3}
   firePoint: {fileID: 1139710910}
 --- !u!1 &1916765870
 GameObject:
