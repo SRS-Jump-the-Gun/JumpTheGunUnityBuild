@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 866dc5db8c2ef419dbbbc7dad31879ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameSceneName: dylan_truong_upgrades
+  gameSceneName: '*insert scene name*'
 --- !u!1 &37623444
 GameObject:
   m_ObjectHideFlags: 0
