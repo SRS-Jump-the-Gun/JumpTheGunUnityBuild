@@ -2,13 +2,7 @@ using UnityEngine;
 
 public class zoneDetector : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
 
-    }
-
-    // Update is called once per frame
     void Update()
     {
 
@@ -16,18 +10,26 @@ public class zoneDetector : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy") && Input.GetMouseButtonDown(0))
+        //Debug.Log("Collider active");
+        if (other.CompareTag("Enemy") )
         {
+            //Debug.Log("HITTING" + other.name);
             Destroy(other.gameObject);
             //other.GetComponent<scriptname>().takeDamage();
+            //Debug.Log("Colliding!!!");
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Enemy") && Input.GetMouseButtonDown(0))
+        //Debug.Log("Collider active");
+
+        if (other.CompareTag("Enemy") )
         {
+            //Debug.Log("HITTINGGGG" + other.name);
             Destroy(other.gameObject);
+           // Debug.Log("Colliding!!!");
+
             //other.GetComponent<scriptname>().takeDamage();
         }
     }

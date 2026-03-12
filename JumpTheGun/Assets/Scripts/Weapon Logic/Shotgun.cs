@@ -8,7 +8,8 @@ public class Shotgun : Gun
     [SerializeField] private float coneAngle = 15f;
     [SerializeField] private int shotgunAmmo = 2;
     [SerializeField] private float shotgunReloadDelay = 0.3f;
-    [SerializeField] private GameObject shotgunCollisionZone;
+    [SerializeField] public GameObject shotgunCollisionZone;
+    [SerializeField] GameObject shotgunAsset;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected override void Start()
@@ -19,19 +20,21 @@ public class Shotgun : Gun
         currentAmmo = maxAmmo;
         ammoText.text = currentAmmo.ToString();
         collisionZone = shotgunCollisionZone;
+        shotgunAsset.SetActive(true);
     }
 
     // Update is called once per frame
     void Update()
     {
         SpawnBurst();
+        ReloadLogic();
         //ShootAndReloadLogic();
     }
 
     //Shotgun projectile burst
     private void SpawnBurst()
     {
-        if(currentAmmo <= 0) // If player doesnt have ammo, cant shoot
+        if (currentAmmo <= 0) // If player doesnt have ammo, cant shoot
         {
             PlayerMovement._movement.setLeftClickAllowed(false);
             return;
@@ -44,6 +47,7 @@ public class Shotgun : Gun
         {
             return;
         }
+        StartCoroutine(SetCollisionZoneActive(0.1f));
         for (int i = 0; i < spawnCount; i++)
         {
             // random rotation within cone angle for shotgun spread
@@ -68,6 +72,21 @@ public class Shotgun : Gun
         ammoText.text = currentAmmo.ToString();
     }
 
+    private void OnDisable()
+    {
+        shotgunCollisionZone.SetActive(false);
+        shotgunAsset.SetActive(false);
+    }
+    private void OnEnable()
+    {
+        maxAmmo = shotgunAmmo;
+        reloadDelay = shotgunReloadDelay;
+        currentAmmo = maxAmmo;
+        ammoText.text = currentAmmo.ToString();
+        collisionZone = shotgunCollisionZone;
+        shotgunAsset.SetActive(true);
+    }
+
     //not used yet - instant reload for testing
     private void InstantReload()
     {
@@ -79,5 +98,4 @@ public class Shotgun : Gun
         
 
     }
-
 }
