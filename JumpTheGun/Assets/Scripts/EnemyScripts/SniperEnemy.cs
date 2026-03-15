@@ -19,7 +19,7 @@ public class SniperEnemy : EnemyBase
     [Tooltip("How directly the enemy must face the player to start locking on (0 to 1).")]
     [Range(0, 1)] public float dotThreshold = 0.5f;
     
-    [SerializeField] private int damage = 40;
+    [SerializeField] private int damage = 50;
 
     [Header("Lock-On Mechanics")]
     [Tooltip("How many seconds the player must be in sight before the sniper fires.")]
