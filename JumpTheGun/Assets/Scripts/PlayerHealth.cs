@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour, IDamageable
@@ -5,10 +6,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     [Header("Health")]
     public int maxHP = 100;
     private int currentHP;
+    [SerializeField] protected TMP_Text hpText;
 
     private void Awake()
     {
         currentHP = maxHP;
+        hpText.text = currentHP.ToString();
     }
 
     public void TakeDamage(int amount)
@@ -17,6 +20,7 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
         currentHP -= amount;
         currentHP = Mathf.Max(0, currentHP);
+        hpText.text = currentHP.ToString();
 
         Debug.Log($"Player took {amount} damage. HP: {currentHP}/{maxHP}");
 
