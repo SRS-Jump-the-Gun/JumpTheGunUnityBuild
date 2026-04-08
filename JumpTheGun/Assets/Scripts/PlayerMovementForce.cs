@@ -106,7 +106,7 @@ public class PlayerMovementForce : MonoBehaviour
         Vector3 localPos = cameraPivot.localPosition;
         float newY = Mathf.Lerp(localPos.y, targetY, Time.deltaTime * crouchSmoothSpeed);
         cameraPivot.localPosition = new Vector3(localPos.x, newY, localPos.z);
-        Debug.Log($"Crouch State: {isCrouching}, Target Y: {targetY}, Current Y: {localPos.y}");
+        //Debug.Log($"Crouch State: {isCrouching}, Target Y: {targetY}, Current Y: {localPos.y}");
     }
 
     void FixedUpdate()
