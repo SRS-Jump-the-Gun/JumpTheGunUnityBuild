@@ -7,7 +7,7 @@ public class BulletLogic : MonoBehaviour
     public float speed = 20f;
 
     [Tooltip("How many seconds the bullet exists before being automatically destroyed.")]
-    public float lifetime = 5f;
+    public float lifetime = 2f;
 
     void Start()
     {
@@ -36,7 +36,12 @@ public class BulletLogic : MonoBehaviour
         // Here is where you would typically check if 'other' has a health script:
         // if (other.CompareTag("Player")) { /* Apply Damage */ }
 
-        // Immediately remove the bullet from the game world upon impact.
-        Destroy(gameObject); 
+
+        // Only remove the bullet if it hits an enemy.
+        // Removes cases of bullets disappearing when hitting themselves, or invisible trigger colliders.
+        if (other.CompareTag("Enemy"))
+        {
+            Destroy(gameObject);
+        }
     }
 }
