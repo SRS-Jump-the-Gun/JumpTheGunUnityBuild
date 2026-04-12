@@ -14,16 +14,19 @@ public class PlayerMovementForce : MonoBehaviour
     [SerializeField] private float walkSpeed = 6f;
     [SerializeField] private float runSpeed = 12f;
     [SerializeField] private float crouchSpeed = 3f;
+    [SerializeField] private float jumpBufferTimeInput = 0.2f; // Time window to allow buffered jumps
+    private float jumpBufferTime; // Internal timer for jump buffering
     private float maxSpeed;
 
     [Header("Crouch Settings")]
     [SerializeField] private float defaultHeight = 1.6f; // Standard standing eye-level
     [SerializeField] private float crouchHeight = 0.8f;   // Eye-level when squatted
     [SerializeField] private float crouchSmoothSpeed = 10f;
+    [SerializeField] private float groundDeceleration = 10f;
+    [SerializeField] private float airDeceleration = 2f;        
 
     // Internal State Variables
     private bool canMove = true;
-    private bool jumpInput = false;
     private bool isRunning = false;
     private Vector2 rawInput;         // Stores the raw X/Y from WASD/Thumbstick
     private Vector3 moveDirection = Vector3.zero;
@@ -53,7 +56,11 @@ public class PlayerMovementForce : MonoBehaviour
     void OnJump(InputValue value)
     {
         // Only allow jumping if the button is pressed AND the raycast confirms we are on the floor
-        if (value.isPressed && isGrounded()) jumpInput = true;
+        if (value.isPressed && isGrounded())
+        {
+            jumpBufferTime = jumpBufferTimeInput; // Start the jump buffer timer
+        }
+    
     }
 
     void OnCrouch(InputValue value)
@@ -80,7 +87,14 @@ public class PlayerMovementForce : MonoBehaviour
     void OnRun(InputValue value)
     {
         // Only allow running if Shift is held and we aren't already crouching
-        isRunning = value.isPressed && !isCrouching;
+        if (value.isPressed && canMove && !isCrouching)
+        {
+            isRunning = true;
+        }
+        else
+        {
+            isRunning = false;
+        }
     }
 
     void HandleCrouch()
@@ -92,7 +106,7 @@ public class PlayerMovementForce : MonoBehaviour
         Vector3 localPos = cameraPivot.localPosition;
         float newY = Mathf.Lerp(localPos.y, targetY, Time.deltaTime * crouchSmoothSpeed);
         cameraPivot.localPosition = new Vector3(localPos.x, newY, localPos.z);
-        Debug.Log($"Crouch State: {isCrouching}, Target Y: {targetY}, Current Y: {localPos.y}");
+        //Debug.Log($"Crouch State: {isCrouching}, Target Y: {targetY}, Current Y: {localPos.y}");
     }
 
     void FixedUpdate()
@@ -107,7 +121,6 @@ public class PlayerMovementForce : MonoBehaviour
         // transform.forward is 'W/S', transform.right is 'A/D'
         moveDirection = (transform.forward * rawInput.y) + (transform.right * rawInput.x);
 
-        // 2. THE SNAPPY FIX: Directional Correction
         // If we have input and are on the ground, check if we're trying to turn sharply
         if (isGrounded() && rawInput.magnitude > 0.1f)
         {
@@ -122,14 +135,12 @@ public class PlayerMovementForce : MonoBehaviour
             }
         }
 
-        // 3. Apply the force
         // VelocityChange ignores the mass of the Rigidbody, making it feel lightweight and responsive
         if (moveDirection.magnitude > 0.1f)
         {
             rb.AddForce(moveDirection.normalized * moveForce, ForceMode.VelocityChange); 
         }
 
-        // 4. Speed Limiter
         // Set the speed limit based on our current action (Crouch, Run, or Walk)
         maxSpeed = isCrouching ? crouchSpeed : (isRunning ? runSpeed : walkSpeed);
 
@@ -141,19 +152,24 @@ public class PlayerMovementForce : MonoBehaviour
             rb.linearVelocity = new Vector3(horizontalVelocity.x, rb.linearVelocity.y, horizontalVelocity.z);
         }
 
-        // 5. Friction/Braking
-        // If the player lets go of all keys, stop the character immediately (no sliding)
-        if (rawInput.magnitude < 0.1f && isGrounded())
+        // Deceleration for ground and air
+        if (rawInput.magnitude < 0.1f)
         {
-            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            float currentDecel = isGrounded() ? groundDeceleration : airDeceleration;
+            Vector3 counterForce = -new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z) * currentDecel;
+            rb.AddForce(counterForce * Time.fixedDeltaTime, ForceMode.VelocityChange);
         }
 
-        // 6. Jumping
-        if (jumpInput)
+        // 6. Jumping'
+        // Buffering the jump input allows for more forgiving timing, letting players press jump slightly before they hit the ground and still have it register
+        if(jumpBufferTime > 0f)
         {
-            // Impulse is a single burst of energy suited for a jump
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            jumpInput = false;
+            jumpBufferTime -= Time.fixedDeltaTime; // Decrease the jump buffer timer over time
+        }
+        if (jumpBufferTime > 0f && isGrounded())
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+            jumpBufferTime = 0f; // Reset the buffer after jumping
         }
     }
 

@@ -32,7 +32,14 @@ public class BulletLogic : MonoBehaviour
     {
         // Log the name of the object hit to the Console for debugging.
         Debug.Log("Hit: " + other.name);
-
+        
+        Parry parry = other.GetComponent<Parry>();
+        if (parry != null)
+        {
+            transform.rotation = parry.direction;
+            return;
+        }
+        
         // Here is where you would typically check if 'other' has a health script:
         // if (other.CompareTag("Player")) { /* Apply Damage */ }
 
