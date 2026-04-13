@@ -47,6 +47,7 @@ public class Shotgun : Gun
         {
             return;
         }
+        SoundManager.PlaySound(SoundType.SHOTGUN);
         StartCoroutine(SetCollisionZoneActive(0.1f));
         for (int i = 0; i < spawnCount; i++)
         {

@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Pistol : Gun
 {
+    [SerializeField] private float bulletSpd = 50f;
     [SerializeField] private int pistolAmmo = 6;
     [SerializeField] private float pistolReloadDelay = 0.2f;
     [SerializeField] public GameObject pistolCollision;
@@ -35,6 +36,8 @@ public class Pistol : Gun
             Debug.Log("Shooting!");
             currentAmmo--;
             ammoText.text = currentAmmo.ToString();
+
+            spawnBullet();
         }
 
 
@@ -54,5 +57,12 @@ public class Pistol : Gun
     private void OnDisable()
     {
         pistolAsset.SetActive(false);
+    }
+
+    private void spawnBullet()
+    {
+        GameObject bullet = Instantiate(bulletPrefab, playerCamera.transform.position + playerCamera.transform.forward, Quaternion.identity);
+        Rigidbody rb = bullet.GetComponent<Rigidbody>();
+        rb.linearVelocity = playerCamera.transform.forward * bulletSpd;
     }
 }
