@@ -9,6 +9,10 @@ public class BulletLogic : MonoBehaviour
     [Tooltip("How many seconds the bullet exists before being automatically destroyed.")]
     public float lifetime = 2f;
 
+    [Header("Damage Settings")]
+    [Tooltip("Damage dealt on impact.")]
+    public int damage = 0;
+
     void Start()
     {
         // This schedules the GameObject for destruction as soon as it is spawned.
@@ -18,10 +22,19 @@ public class BulletLogic : MonoBehaviour
 
     void Update()
     {
-        // Move the bullet forward along its local Z-axis (blue arrow).
-        // We multiply by Time.deltaTime to ensure movement is consistent regardless of frame rate.
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        Vector3 moveDirection = transform.forward;
+        float moveDistance = speed * Time.deltaTime;
+        // mostly a safety to prevent tunneling, continuous collision detection attribute should prevent though
+        if (Physics.Raycast(transform.position, moveDirection, out RaycastHit hit, moveDistance))
+        {
+            transform.position = hit.point;
+        }
+        else
+        {
+            transform.position += moveDirection * moveDistance;
+        }
     }
+
 
     /// <summary>
     /// This runs when the bullet's trigger collider touches another collider.
@@ -32,21 +45,24 @@ public class BulletLogic : MonoBehaviour
     {
         // Log the name of the object hit to the Console for debugging.
         Debug.Log("Hit: " + other.name);
-        
+
         Parry parry = other.GetComponent<Parry>();
         if (parry != null)
         {
             transform.rotation = parry.direction;
             return;
         }
-        
-        // Here is where you would typically check if 'other' has a health script:
-        // if (other.CompareTag("Player")) { /* Apply Damage */ }
 
-
-        // Only remove the bullet if it hits an enemy.
-        // Removes cases of bullets disappearing when hitting themselves, or invisible trigger colliders.
-        if (other.CompareTag("Enemy"))
+        if (other.CompareTag("Player"))
+        {
+            if (other.TryGetComponent<IDamageable>(out var damageable))
+            {
+                damageable.TakeDamage(damage);
+                Debug.Log("Enemy projectile dealt " + damage + " damage to player!");
+            }
+            Destroy(gameObject);
+        }
+        else
         {
             Destroy(gameObject);
         }
