@@ -11,7 +11,9 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     private void Awake()
     {
         currentHP = maxHP;
-        hpText.text = currentHP.ToString();
+
+        if (hpText != null)
+            hpText.text = currentHP.ToString();
     }
 
     public void TakeDamage(int amount)
@@ -20,9 +22,11 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
         currentHP -= amount;
         currentHP = Mathf.Max(0, currentHP);
-        hpText.text = currentHP.ToString();
 
         Debug.Log($"Player took {amount} damage. HP: {currentHP}/{maxHP}");
+
+        if (hpText != null)
+            hpText.text = currentHP.ToString();
 
         if (currentHP == 0)
         {
