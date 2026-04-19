@@ -31,9 +31,9 @@ public abstract class EnemyBase : MonoBehaviour
     {
         // Automatically find the player by tag if not assigned in Inspector
         if (player == null) player = GameObject.FindWithTag("Player");
-        
+
         CachePlayerDamageable();
-        
+
         // Start patrolling if points are assigned
         if (HasPatrol()) agent.destination = destinations[currentDestination].position;
     }
@@ -74,7 +74,7 @@ public abstract class EnemyBase : MonoBehaviour
     {
         // If there's nowhere to patrol, stay in "Chase" mode (searching)
         if (!HasPatrol()) { isChasing = true; return; }
-        
+
         // Logic for entering and leaving the chase state (Hysteresis prevents flickering)
         if (!isChasing && dist <= chaseRange) isChasing = true;
         if (isChasing && dist > loseRange) isChasing = false;
@@ -104,7 +104,7 @@ public abstract class EnemyBase : MonoBehaviour
     {
         Vector3 dir = (player.transform.position - transform.position).normalized;
         dir.y = 0; // Keep the enemy upright (don't tilt up/down)
-        
+
         if (dir.sqrMagnitude > 0.01f)
         {
             // Slerp provides smooth rotation. Increase '10f' to make them turn faster.
@@ -123,9 +123,9 @@ public abstract class EnemyBase : MonoBehaviour
     protected virtual void PatrolStep()
     {
         if (!HasPatrol()) return;
-        
+
         agent.isStopped = false;
-        
+
         // Check if the enemy has reached the current patrol point
         if (agent.remainingDistance <= 0.5f)
         {
@@ -142,5 +142,27 @@ public abstract class EnemyBase : MonoBehaviour
     protected void CachePlayerDamageable()
     {
         if (player != null) playerDamageable = player.GetComponentInParent<IDamageable>();
+    }
+
+    /// <summary>
+    /// Dynamically calculates the actual center of the player's hitbox, there might be a cleaner way to do this lol
+    /// </summary>
+    protected Vector3 GetPlayerHitboxCenter()
+    {
+        if (player == null) return Vector3.zero;
+
+        // Try to find a CapsuleCollider on the player
+        CapsuleCollider capsule = player.GetComponent<CapsuleCollider>();
+        if (capsule == null) capsule = player.GetComponentInChildren<CapsuleCollider>();
+        if (capsule == null) capsule = player.GetComponentInParent<CapsuleCollider>();
+
+        // If found, calculate the actual center based on the collider's dimensions
+        if (capsule != null)
+        {
+            return player.transform.position + capsule.center;
+        }
+
+        // fallback, assumes height of 1 unit
+        return player.transform.position + Vector3.up * 0.5f;
     }
 }
