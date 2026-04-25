@@ -7,7 +7,8 @@ using System;
 
 public enum SoundType
 {
-    SHOTGUN
+    SHOTGUN,
+    BACKGROUND_MUSIC 
 }
 
 [RequireComponent(typeof(AudioSource)), ExecuteInEditMode]
@@ -16,11 +17,19 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private SoundList[] soundList;
 
     private static SoundManager instance;
-    private AudioSource audioSource;
 
-    private void Awake()
+    private AudioSource audioSource;   // For gunshots/SFX    
+    private AudioSource musicSource; // For looping BGM
+
+private void Awake()
     {
         instance = this;
+        
+        // setup two audio source components in the sound manager game object ( one fo sfx and the other for music)
+        AudioSource[] sources = GetComponents<AudioSource>();
+        musicSource = gameObject.AddComponent<AudioSource>();
+        musicSource = sources[1];
+        audioSource = sources[1];
     }
 
     private void Start()
@@ -34,13 +43,23 @@ public class SoundManager : MonoBehaviour
         AudioClip randomClip = clips[UnityEngine.Random.Range(0, clips.Length)];
         instance.audioSource.PlayOneShot(randomClip, volume);
     }
+    public static void PlayMusic(SoundType sound, float volume = 0.5f)
+    {
+        AudioClip[] clips = instance.soundList[(int)sound].Sounds;
+        AudioClip clip = clips[0]; 
+
+        instance.musicSource.clip = clip;
+        instance.musicSource.volume = volume;
+        instance.musicSource.loop = true; 
+        instance.musicSource.Play();
+    }
 
 #if UNITY_EDITOR
     private void OnEnable()
     {
         string[] names = Enum.GetNames(typeof(SoundType));
-        Array.Resize(ref soundList, names.Length); 
-        for (int i = 0; i < names.Length; i++)    
+        Array.Resize(ref soundList, names.Length);
+        for (int i = 0; i < names.Length; i++)
         {
             soundList[i].name = names[i];
         }
