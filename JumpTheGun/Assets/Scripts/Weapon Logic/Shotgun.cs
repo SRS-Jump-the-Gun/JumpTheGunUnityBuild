@@ -8,6 +8,7 @@ public class Shotgun : Gun
     [SerializeField] private float coneAngle = 15f;
     [SerializeField] private int shotgunAmmo = 2;
     [SerializeField] private float shotgunReloadDelay = 0.3f;
+    [SerializeField] private float knockbackForce = 8f; // Recoil force applied to the player on fire
     [SerializeField] public GameObject shotgunCollisionZone;
     [SerializeField] GameObject shotgunAsset;
 
@@ -34,9 +35,14 @@ public class Shotgun : Gun
     //Shotgun projectile burst
     private void SpawnBurst()
     {
-        if (currentAmmo <= 0) // If player doesnt have ammo, cant shoot
+        
+        if (currentAmmo <= 0) 
         {
-            PlayerMovement._movement.setLeftClickAllowed(false);
+            // Point to PlayerMovementForce instead of PlayerMovement
+            if (PlayerMovementForce.instance != null)
+            {
+                PlayerMovementForce.instance.setLeftClickAllowed(false);
+            }
             return;
         }
         if (isReloading)    // If player is currently reloading, cant shoot
@@ -47,8 +53,15 @@ public class Shotgun : Gun
         {
             return;
         }
-        SoundManager.PlaySound(SoundType.SHOTGUN);
+        // SoundManager.PlaySound(SoundType.SHOTGUN); // Play shotgun sound effect
         StartCoroutine(SetCollisionZoneActive(0.1f));
+
+        // Cache player colliders once so bullets can ignore them on spawn,
+        // preventing self-damage when shooting downward into the player's own collider
+        Collider[] playerColliders = PlayerMovementForce.instance != null
+            ? PlayerMovementForce.instance.GetComponents<Collider>()
+            : new Collider[0];
+
         for (int i = 0; i < spawnCount; i++)
         {
             // random rotation within cone angle for shotgun spread
@@ -62,15 +75,35 @@ public class Shotgun : Gun
 
             GameObject bulletObj = Instantiate(bulletPrefab, playerCamera.transform.position + playerCamera.transform.forward, Quaternion.LookRotation(finalDirection));
 
+            // Ignore collision between this bullet and all of the player's colliders
+            Collider bulletCol = bulletObj.GetComponent<Collider>();
+            if (bulletCol != null)
+            {
+                foreach (Collider playerCol in playerColliders)
+                    Physics.IgnoreCollision(bulletCol, playerCol);
+            }
+
             Rigidbody rb = bulletObj.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.linearVelocity = finalDirection * bulletSpd; 
+                rb.linearVelocity = finalDirection * bulletSpd;
             }
         }
+        // Push the player backwards opposite to the shoot direction
+        if (PlayerMovementForce.instance != null)
+        {
+            Vector3 recoilDir = -playerCamera.transform.forward;
+            PlayerMovementForce.instance.ApplyKnockback(recoilDir * knockbackForce);
+        }
+
         // decrement ammo and update UI
         currentAmmo--;
         ammoText.text = currentAmmo.ToString();
+    }
+
+    protected override void OnReloadBullet()
+    {
+        SoundManager.PlaySound(SoundType.SHOTGUN_SHELL);
     }
 
     private void OnDisable()

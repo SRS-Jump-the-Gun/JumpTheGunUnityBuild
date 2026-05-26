@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovementForce : MonoBehaviour
 {
+    public static PlayerMovementForce instance;
     [Header("References")]
     [Tooltip("The empty object the camera follows. Used for crouching height changes.")]
     [SerializeField] private Transform cameraPivot;
@@ -18,6 +19,9 @@ public class PlayerMovementForce : MonoBehaviour
     private float jumpBufferTime; // Internal timer for jump buffering
     private float maxSpeed;
 
+    [Header("Gravity Settings")]
+    [SerializeField] private float extraGravity = 25f; // Extra downward force applied while airborne
+
     [Header("Crouch Settings")]
     [SerializeField] private float defaultHeight = 1.6f; // Standard standing eye-level
     [SerializeField] private float crouchHeight = 0.8f;   // Eye-level when squatted
@@ -28,10 +32,15 @@ public class PlayerMovementForce : MonoBehaviour
     // Internal State Variables
     private bool canMove = true;
     private bool isRunning = false;
+    private bool leftClickAllowed = true;
     private Vector2 rawInput;         // Stores the raw X/Y from WASD/Thumbstick
     private Vector3 moveDirection = Vector3.zero;
     private bool isCrouching;
-
+    void Awake()
+        {
+            // Initialize the static instance
+            instance = this;
+        }
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -160,6 +169,12 @@ public class PlayerMovementForce : MonoBehaviour
             rb.AddForce(counterForce * Time.fixedDeltaTime, ForceMode.VelocityChange);
         }
 
+        // Pull the player down faster than default Unity gravity while airborne
+        if (!isGrounded())
+        {
+            rb.AddForce(Vector3.down * extraGravity, ForceMode.Acceleration);
+        }
+
         // 6. Jumping'
         // Buffering the jump input allows for more forgiving timing, letting players press jump slightly before they hit the ground and still have it register
         if(jumpBufferTime > 0f)
@@ -192,5 +207,25 @@ public class PlayerMovementForce : MonoBehaviour
     {
         // Shoots a short invisible ray straight down to see if there is a floor collider below us
         return Physics.Raycast(transform.position, Vector3.down, 1.2f);
+    }
+    // Add this inside your PlayerMovementForce class
+    public bool isSlidingPublic()
+    {
+        return isRunning && isCrouching;
+    }
+
+    public bool isRunningPublic()
+    {
+        return isRunning;
+    }
+    // Called externally to push the player (e.g. shotgun recoil)
+    public void ApplyKnockback(Vector3 force)
+    {
+        rb.AddForce(force, ForceMode.VelocityChange);
+    }
+
+    public void setLeftClickAllowed(bool value)
+    {
+        leftClickAllowed = value;
     }
 }

@@ -21,12 +21,16 @@ public abstract class Gun : MonoBehaviour
         ammoText.text = currentAmmo.ToString();
     }
 
+    // Override in subclasses to play a sound each time one bullet/shell is loaded
+    protected virtual void OnReloadBullet() { }
+
+    // Override in subclasses to play a sound when the full reload sequence finishes
+    protected virtual void OnReloadComplete() { }
+
     protected System.Collections.IEnumerator StartReloading()
     {
         isReloading = true;
-
-        // Reset knockback to original value as soon as we start loading the first shell
-        //PlayerMovement._movement.setLeftClickAllowed(true);
+        OnReloadBullet();
 
         while (currentAmmo < maxAmmo)
         {
@@ -34,11 +38,18 @@ public abstract class Gun : MonoBehaviour
 
             currentAmmo++;
             ammoText.text = currentAmmo.ToString();
-
-            // Do later play sound or animation here
             if (Input.GetMouseButtonUp(0)) break;
         }
-
+       
+        while(SoundManager.IsPlayingSound(SoundType.REVOLVER_RELOAD)) // Wait until the reload sound finishes before playing the chamber sound
+        {
+            Debug.Log("Pistol reload complete");
+            yield return null;
+        }
+        // If we finish reloading the GUN, stop the reload sound effect
+        
+        OnReloadComplete();
+        
         isReloading = false;
     }
 

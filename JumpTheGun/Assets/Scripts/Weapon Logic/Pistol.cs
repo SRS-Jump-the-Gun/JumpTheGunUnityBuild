@@ -54,6 +54,18 @@ public class Pistol : Gun
 
     }
 
+    protected override void OnReloadBullet()
+    {
+        SoundManager.PlaySound(SoundType.REVOLVER_RELOAD);
+    }
+
+    protected override void OnReloadComplete()
+    {
+       SoundManager.PlaySound(SoundType.REVOLVER_CHAMBER);
+        Debug.Log("Pistol relOAD OTHER COMPLETE");
+        
+    }
+
     private void OnDisable()
     {
         pistolAsset.SetActive(false);

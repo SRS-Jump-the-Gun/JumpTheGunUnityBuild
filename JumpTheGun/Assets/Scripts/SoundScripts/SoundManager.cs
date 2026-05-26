@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
-
+using System.Collections;
+using System.Collections.Generic;
 
 //when adding sound, make sure to add corresponding category here and add audio file to SoundManager game object
 //To call sound effect in script call it like so:  SoundManager.PlaySound(SoundType.{Sound name here});
@@ -8,7 +9,10 @@ using System;
 public enum SoundType
 {
     SHOTGUN,
-    BACKGROUND_MUSIC 
+    BACKGROUND_MUSIC,
+    REVOLVER_RELOAD,   // Plays once per bullet inserted into the revolver
+    REVOLVER_CHAMBER,  // Plays once when the revolver reload is fully complete
+    SHOTGUN_SHELL      // Plays once per shell inserted into the shotgun
 }
 
 [RequireComponent(typeof(AudioSource)), ExecuteInEditMode]
@@ -18,17 +22,20 @@ public class SoundManager : MonoBehaviour
 
     private static SoundManager instance;
 
-    private AudioSource audioSource;   // For gunshots/SFX    
-    private AudioSource musicSource; // For looping BGM
+    private AudioSource audioSource;  // For gunshots/SFX
+    private AudioSource musicSource;  // For looping BGM
 
-private void Awake()
+    // Tracks which SoundTypes are currently playing.
+    // Each PlaySound call adds the type and starts a coroutine that removes it
+    // once the clip finishes, making IsPlayingSound reliable with PlayOneShot.
+    private HashSet<SoundType> playingSounds = new HashSet<SoundType>();
+
+    private void Awake()
     {
         instance = this;
-        
-        // setup two audio source components in the sound manager game object ( one fo sfx and the other for music)
+
         AudioSource[] sources = GetComponents<AudioSource>();
-        musicSource = gameObject.AddComponent<AudioSource>();
-        musicSource = sources[1];
+        musicSource = sources[0];
         audioSource = sources[1];
     }
 
@@ -42,16 +49,32 @@ private void Awake()
         AudioClip[] clips = instance.soundList[(int)sound].Sounds;
         AudioClip randomClip = clips[UnityEngine.Random.Range(0, clips.Length)];
         instance.audioSource.PlayOneShot(randomClip, volume);
+        instance.StartCoroutine(instance.TrackSound(sound, randomClip.length));
     }
+
     public static void PlayMusic(SoundType sound, float volume = 0.5f)
     {
         AudioClip[] clips = instance.soundList[(int)sound].Sounds;
-        AudioClip clip = clips[0]; 
+        AudioClip clip = clips[0];
 
         instance.musicSource.clip = clip;
         instance.musicSource.volume = volume;
-        instance.musicSource.loop = true; 
+        instance.musicSource.loop = true;
         instance.musicSource.Play();
+    }
+
+    // Returns true while a PlayOneShot for this SoundType is still playing
+    public static bool IsPlayingSound(SoundType sound)
+    {
+        return instance.playingSounds.Contains(sound);
+    }
+
+    // Registers the sound as active then removes it after the clip finishes
+    private IEnumerator TrackSound(SoundType sound, float duration)
+    {
+        playingSounds.Add(sound);
+        yield return new WaitForSeconds(duration);
+        playingSounds.Remove(sound);
     }
 
 #if UNITY_EDITOR
@@ -64,7 +87,7 @@ private void Awake()
             soundList[i].name = names[i];
         }
     }
-#endif  
+#endif
 }
 
 [Serializable]

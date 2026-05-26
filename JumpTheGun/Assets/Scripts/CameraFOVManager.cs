@@ -1,37 +1,42 @@
 using UnityEngine;
+using Unity.Cinemachine;
 
+// Attach this script to any GameObject in the scene.
+// It widens the FOV when the player is running to give a speed effect,
+// and widens it further when sliding. Drag the CinemachineCamera into
+// the Virtual Camera slot in the Inspector.
 public class CameraFOVManager : MonoBehaviour
 {
-    // Define variables for normal and zoomed FOV, and zoom speed.
-    [SerializeField] private float normalFOV = 60f;
-    [SerializeField] private float zoomFOV = 75f;
-    [SerializeField] private float zoomSpeed = 5f;
+    [SerializeField] private float normalFOV = 60f;    // Default FOV when walking/idle
+    [SerializeField] private float zoomFOV = 75f;      // FOV when running
+    [SerializeField] private float zoomSpeed = 5f;     // How fast the FOV transitions
 
-    private Camera mainCamera;
-    private PlayerMovement playerMovement;
+    // Must be assigned in Inspector — Cinemachine controls the Main Camera's FOV,
+    // so we change the lens here instead of on the Camera component directly
+    [SerializeField] private CinemachineCamera virtualCamera;
+
+    private PlayerMovementForce playerMovement;
 
     void Start()
     {
-        // Get the Camera component attached to the GameObject this script is on.
-        mainCamera = GetComponent<Camera>();
-        // Set the initial FOV.
-        mainCamera.fieldOfView = normalFOV;
-
-        playerMovement = GetComponentInParent<PlayerMovement>();
+        // Walks up the hierarchy to find PlayerMovementForce on the player object
+        playerMovement = GetComponentInParent<PlayerMovementForce>();
     }
 
     void Update()
     {
+        if (playerMovement == null || virtualCamera == null) return;
+
         float targetFOV;
 
-        // Determine the target FOV based on user input.
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.W))
+        if (playerMovement.isRunningPublic())
         {
             targetFOV = zoomFOV;
 
-            if(playerMovement.isSlidingPublic())
+            // Extra FOV boost on top of run FOV when sliding
+            if (playerMovement.isSlidingPublic())
             {
-                targetFOV = zoomFOV + 10f; // Additional zoom when Left Control is also pressed.
+                targetFOV = zoomFOV + 10f;
             }
         }
         else
@@ -39,7 +44,7 @@ public class CameraFOVManager : MonoBehaviour
             targetFOV = normalFOV;
         }
 
-        // Smoothly interpolate the current FOV to the target FOV.
-        mainCamera.fieldOfView = Mathf.Lerp(mainCamera.fieldOfView, targetFOV, Time.deltaTime * zoomSpeed);
+        // Smoothly interpolate to the target FOV each frame
+        virtualCamera.Lens.FieldOfView = Mathf.Lerp(virtualCamera.Lens.FieldOfView, targetFOV, Time.deltaTime * zoomSpeed);
     }
 }
