@@ -5,17 +5,16 @@ using System.Collections.Generic;
 
 //when adding sound, make sure to add corresponding category here and add audio file to SoundManager game object
 //To call sound effect in script call it like so:  SoundManager.PlaySound(SoundType.{Sound name here});
-
 public enum SoundType
 {
     SHOTGUN,
     BACKGROUND_MUSIC,
     REVOLVER_RELOAD,   // Plays once per bullet inserted into the revolver
     REVOLVER_CHAMBER,  // Plays once when the revolver reload is fully complete
-    SHOTGUN_SHELL      // Plays once per shell inserted into the shotgun
+    SHOTGUN_RELOAD      // Plays once per shell inserted into the shotgun
 }
 
-[RequireComponent(typeof(AudioSource)), ExecuteInEditMode]
+[ExecuteInEditMode]
 public class SoundManager : MonoBehaviour
 {
     [SerializeField] private SoundList[] soundList;
@@ -34,15 +33,20 @@ public class SoundManager : MonoBehaviour
     {
         instance = this;
 
-        AudioSource[] sources = GetComponents<AudioSource>();
-        musicSource = sources[0];
-        audioSource = sources[1];
+        musicSource = gameObject.AddComponent<AudioSource>();
+        musicSource.playOnAwake = false;
+
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+
+        musicSource.volume = PlayerPrefs.GetFloat("Volume", 0.5f);
     }
 
-    private void Start()
+    public static void SetMusicVolume(float volume)
     {
-        audioSource = GetComponent<AudioSource>();
+        instance.musicSource.volume = volume;
     }
+
 
     public static void PlaySound(SoundType sound, float volume = 1)
     {

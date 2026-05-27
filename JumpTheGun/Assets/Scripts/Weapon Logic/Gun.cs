@@ -26,6 +26,7 @@ public abstract class Gun : MonoBehaviour
 
     // Override in subclasses to play a sound when the full reload sequence finishes
     protected virtual void OnReloadComplete() { }
+    protected virtual void BulletSound() { }
 
     protected System.Collections.IEnumerator StartReloading()
     {

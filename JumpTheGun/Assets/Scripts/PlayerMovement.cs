@@ -84,6 +84,8 @@ public class PlayerMovement : MonoBehaviour
         doubleJump = GetComponent<DoubleJump>(); 
         targetHeight = defaultHeight;
 
+        lookSpeed = PlayerPrefs.GetFloat("MouseSens", lookSpeed);
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

@@ -53,7 +53,8 @@ public class Shotgun : Gun
         {
             return;
         }
-        // SoundManager.PlaySound(SoundType.SHOTGUN); // Play shotgun sound effect
+        // Play shotgun sound effect
+        BulletSound();
         StartCoroutine(SetCollisionZoneActive(0.1f));
 
         // Cache player colliders once so bullets can ignore them on spawn,
@@ -103,7 +104,11 @@ public class Shotgun : Gun
 
     protected override void OnReloadBullet()
     {
-        SoundManager.PlaySound(SoundType.SHOTGUN_SHELL);
+        SoundManager.PlaySound(SoundType.SHOTGUN_RELOAD);
+    }
+    protected override void BulletSound()
+    {
+        SoundManager.PlaySound(SoundType.SHOTGUN);
     }
 
     private void OnDisable()

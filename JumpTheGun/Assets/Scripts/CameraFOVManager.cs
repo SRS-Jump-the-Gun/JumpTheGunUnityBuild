@@ -19,7 +19,7 @@ public class CameraFOVManager : MonoBehaviour
 
     void Start()
     {
-        // Walks up the hierarchy to find PlayerMovementForce on the player object
+        normalFOV = PlayerPrefs.GetFloat("FOV", normalFOV);
         playerMovement = GetComponentInParent<PlayerMovementForce>();
     }
 
