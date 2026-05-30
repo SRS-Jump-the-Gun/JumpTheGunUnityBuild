@@ -104,10 +104,10 @@ public class EnemySpawner : MonoBehaviour
             }
 
             activeEnemies.Add(enemy);
-            Debug.Log($"EnemySpawner: Spawned [{entry.prefab.name}] at {point.name} (NavMesh pos: {hit.position})");
+            // Debug.Log($"EnemySpawner: Spawned [{entry.prefab.name}] at {point.name} (NavMesh pos: {hit.position})");
         }
 
-        Debug.Log($"EnemySpawner: Spawned {activeEnemies.Count} enemies.");
+        //Debug.Log($"EnemySpawner: Spawned {activeEnemies.Count} enemies.");
     }
 
     /// <summary>

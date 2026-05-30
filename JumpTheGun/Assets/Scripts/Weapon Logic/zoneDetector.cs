@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class zoneDetector : MonoBehaviour
 {
-
+    [SerializeField] private GameObject pistol;
     void Update()
     {
 
@@ -10,10 +10,10 @@ public class zoneDetector : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        //Debug.Log("Collider active");
+        Debug.Log("Collider active" + pistol.name);
         if (other.CompareTag("Enemy") )
         {
-            //Debug.Log("HITTING" + other.name);
+            Debug.Log("HITTING" + other.name);
             Destroy(other.gameObject);
             //other.GetComponent<scriptname>().takeDamage();
             //Debug.Log("Colliding!!!");
@@ -26,7 +26,7 @@ public class zoneDetector : MonoBehaviour
 
         if (other.CompareTag("Enemy") )
         {
-            //Debug.Log("HITTINGGGG" + other.name);
+            Debug.Log("HITTINGGGG" + other.name);
             Destroy(other.gameObject);
            // Debug.Log("Colliding!!!");
 

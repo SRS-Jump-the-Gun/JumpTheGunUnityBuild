@@ -4507,6 +4507,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13847cf1a83d899429963363d59022da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pistol: {fileID: 359404936}
 --- !u!64 &359404939
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -17674,6 +17675,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13847cf1a83d899429963363d59022da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pistol: {fileID: 1363205603}
 --- !u!65 &1411793549
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -17871,6 +17873,7 @@ MonoBehaviour:
   normalFOV: 60
   zoomFOV: 75
   zoomSpeed: 5
+  virtualCamera: {fileID: 0}
 --- !u!114 &1419988189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22089,6 +22092,7 @@ MonoBehaviour:
   coneAngle: 15
   shotgunAmmo: 2
   shotgunReloadDelay: 0.3
+  knockbackForce: 8
   shotgunCollisionZone: {fileID: 359404936}
   shotgunAsset: {fileID: 2053665485}
 --- !u!114 &1748905161
@@ -22241,6 +22245,7 @@ MonoBehaviour:
   runSpeed: 12
   crouchSpeed: 3
   jumpBufferTimeInput: 0.2
+  extraGravity: 25
   defaultHeight: 1
   crouchHeight: 0.4
   crouchSmoothSpeed: 10

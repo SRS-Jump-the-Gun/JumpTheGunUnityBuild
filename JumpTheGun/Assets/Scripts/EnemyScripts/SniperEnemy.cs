@@ -9,16 +9,16 @@ public class SniperEnemy : EnemyBase
     [Header("Sniper Specifics")]
     [Tooltip("The LineRenderer component used to visualize the sniper's aim.")]
     public LineRenderer laserLine;
-    
+
     [Tooltip("Layers the laser cannot pass through (Walls, Ground, etc.).")]
     public LayerMask obstacleLayer;
-    
+
     [Tooltip("The point where the laser and bullets originate.")]
     public Transform firePoint;
-    
+
     [Tooltip("How directly the enemy must face the player to start locking on (0 to 1).")]
     [Range(0, 1)] public float dotThreshold = 0.5f;
-    
+
     [SerializeField] private int damage = 50;
 
     [Header("Lock-On Mechanics")]
@@ -32,7 +32,7 @@ public class SniperEnemy : EnemyBase
         if (player == null || !agent.isOnNavMesh) return;
 
         float dist = Vector3.Distance(transform.position, player.transform.position);
-        
+
         // Handle Movement State
         if (dist <= attackRange)
         {
@@ -54,7 +54,7 @@ public class SniperEnemy : EnemyBase
     private void HandleLaserVisuals()
     {
         if (player == null || firePoint == null || laserLine == null) return;
-        
+
         Vector3 startPos = firePoint.position;
         Vector3 targetPos = player.transform.position;
         Vector3 dirToPlayer = (targetPos - startPos).normalized;
@@ -78,8 +78,8 @@ public class SniperEnemy : EnemyBase
                 if (hit.collider.CompareTag("Player"))
                 {
                     lockOnTimer += Time.deltaTime;
-                    
-                    // Visual "Tell": Laser gets thicker as the timer approaches timeToLock
+
+                    // Laser gets thicker as the timer approaches timeToLock
                     float progress = lockOnTimer / timeToLock;
                     laserLine.startWidth = Mathf.Lerp(0.05f, 0.5f, progress);
                     laserLine.endWidth = Mathf.Lerp(0.05f, 0.5f, progress);
@@ -87,8 +87,8 @@ public class SniperEnemy : EnemyBase
                     // If the timer reaches the limit, fire!
                     if (lockOnTimer >= timeToLock)
                     {
-                        Attack(); 
-                        ResetLockOn(); 
+                        Attack();
+                        ResetLockOn();
                         Debug.Log("Sniper Attack Executed!");
                     }
                 }
@@ -96,7 +96,7 @@ public class SniperEnemy : EnemyBase
                 {
                     // Hit a wall/obstacle instead
                     ResetLockOn();
-                    Debug.Log("Line of sight broken by obstacle: " + hit.collider.name);
+                    //Debug.Log("Line of sight broken by obstacle: " + hit.collider.name);
                 }
             }
             else
@@ -130,7 +130,7 @@ public class SniperEnemy : EnemyBase
     private void ResetLockOn()
     {
         lockOnTimer = 0;
-        if(laserLine != null)
+        if (laserLine != null)
         {
             laserLine.startWidth = 0.05f;
             laserLine.endWidth = 0.05f;

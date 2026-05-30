@@ -16,7 +16,7 @@ public class BulletLogic : MonoBehaviour
     void Start()
     {
         // This schedules the GameObject for destruction as soon as it is spawned.
-        // It prevents "memory leaks" where thousands of missed bullets exist forever in your scene.
+        // It prevents "memory leaks" where thousands of missed bullets exist forever in the scene.
         Destroy(gameObject, lifetime);
     }
 
@@ -61,9 +61,11 @@ public class BulletLogic : MonoBehaviour
                 Debug.Log("Enemy projectile dealt " + damage + " damage to player!");
             }
             Destroy(gameObject);
+
         }
         else
         {
+
             Destroy(gameObject);
         }
     }
