@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c9dc3b326e5049888fd19bf82f62429, type: 3}
+  m_Name: fight
+  m_EditorClassIdentifier: 
+  panelImage: {fileID: 0}
+  panStart: {x: 0, y: 0}
+  panEnd: {x: 0, y: 0}
+  zoomStart: 1
+  zoomEnd: 1.2
+  panDuration: 7
+  speakerName: Jake
+  dialogueLines:
+  - "\u2026That\u2019s my daughter\u2019s street."
+  - "That\u2019s my daughter."
+  voiceLine: {fileID: 0}
+  ambientSound: {fileID: 0}

@@ -12,7 +12,9 @@ public class CutsceneManager : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private Image panelImage;
-    [SerializeField] private Image nextPanelImage;      // for crossfade
+    // nextPanelImage sits BEHIND panelImage in the Canvas hierarchy (listed first in Inspector).
+    // During a dissolve, panelImage fades out, revealing nextPanelImage underneath.
+    [SerializeField] private Image nextPanelImage;
     [SerializeField] private TextMeshProUGUI speakerNameText;
     [SerializeField] private TextMeshProUGUI dialogueText;
     [SerializeField] private GameObject dialogueBox;
@@ -27,6 +29,7 @@ public class CutsceneManager : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioSource sfxSource;
+    [SerializeField] private AudioSource voiceSource;
 
     private int currentPanelIndex = 0;
     private int currentLineIndex = 0;
@@ -39,6 +42,7 @@ public class CutsceneManager : MonoBehaviour
     {
         continuePrompt.SetActive(false);
         dialogueBox.SetActive(false);
+        nextPanelImage.color = new Color(1f, 1f, 1f, 0f);
         screenFade.alpha = 1f;
         StartCoroutine(BeginCutscene());
     }
@@ -50,13 +54,9 @@ public class CutsceneManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
         {
             if (isTyping)
-            {
                 SkipTypewriter();
-            }
             else
-            {
                 AdvanceDialogue();
-            }
         }
     }
 
@@ -76,14 +76,11 @@ public class CutsceneManager : MonoBehaviour
 
         CutscenePanelData data = panels[index];
 
-        // crossfade image
         yield return CrossfadePanel(data.panelImage);
 
-        // start Ken Burns on the visible image
         if (kenBurnsCoroutine != null) StopCoroutine(kenBurnsCoroutine);
         kenBurnsCoroutine = StartCoroutine(KenBurns(panelImage, data));
 
-        // audio
         if (data.ambientSound != null && sfxSource != null)
         {
             sfxSource.clip = data.ambientSound;
@@ -91,17 +88,22 @@ public class CutsceneManager : MonoBehaviour
             sfxSource.Play();
         }
 
-        // show dialogue if any
+        if (data.voiceLine != null && voiceSource != null)
+            voiceSource.PlayOneShot(data.voiceLine);
+
         if (data.dialogueLines != null && data.dialogueLines.Length > 0)
         {
             currentLineIndex = 0;
             dialogueBox.SetActive(true);
-            speakerNameText.text = data.speakerName;
+
+            bool hasSpeaker = !string.IsNullOrEmpty(data.speakerName);
+            speakerNameText.gameObject.SetActive(hasSpeaker);
+            if (hasSpeaker) speakerNameText.text = data.speakerName;
+
             yield return RunTypewriter(data.dialogueLines[0]);
         }
         else
         {
-            // no dialogue — just wait for input to move on
             dialogueBox.SetActive(false);
             ShowContinuePrompt(true);
             waitingForInput = true;
@@ -142,17 +144,14 @@ public class CutsceneManager : MonoBehaviour
     private void AdvanceDialogue()
     {
         CutscenePanelData data = panels[currentPanelIndex];
-
         currentLineIndex++;
 
         if (data.dialogueLines != null && currentLineIndex < data.dialogueLines.Length)
         {
-            // more lines on this panel
             StartCoroutine(RunTypewriter(data.dialogueLines[currentLineIndex]));
         }
         else
         {
-            // move to next panel
             waitingForInput = false;
             ShowContinuePrompt(false);
             currentPanelIndex++;
@@ -160,22 +159,40 @@ public class CutsceneManager : MonoBehaviour
         }
     }
 
+    // Dissolve: panelImage (front) fades out, revealing nextPanelImage (behind) with the new sprite.
+    // After the dissolve, the new sprite is moved back to panelImage so Ken Burns can animate it.
     private IEnumerator CrossfadePanel(Sprite newSprite)
     {
         if (panelImage.sprite == null)
         {
             panelImage.sprite = newSprite;
             panelImage.color = Color.white;
+            ResetRect(panelImage.rectTransform);
             yield break;
         }
 
-        // set next panel underneath, fade out current on top via screen fade
         nextPanelImage.sprite = newSprite;
         nextPanelImage.color = Color.white;
+        ResetRect(nextPanelImage.rectTransform);
 
-        yield return FadeScreen(0f, 1f, panelFadeDuration * 0.5f);
+        float elapsed = 0f;
+        while (elapsed < panelFadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            panelImage.color = new Color(1f, 1f, 1f, 1f - Mathf.Clamp01(elapsed / panelFadeDuration));
+            yield return null;
+        }
+
         panelImage.sprite = newSprite;
-        yield return FadeScreen(1f, 0f, panelFadeDuration * 0.5f);
+        panelImage.color = Color.white;
+        ResetRect(panelImage.rectTransform);
+        nextPanelImage.color = new Color(1f, 1f, 1f, 0f);
+    }
+
+    private void ResetRect(RectTransform rt)
+    {
+        rt.anchoredPosition = Vector2.zero;
+        rt.localScale = Vector3.one;
     }
 
     private IEnumerator KenBurns(Image img, CutscenePanelData data)
@@ -183,19 +200,13 @@ public class CutsceneManager : MonoBehaviour
         float elapsed = 0f;
         RectTransform rt = img.rectTransform;
 
-        Vector2 startPos = data.panStart;
-        Vector2 endPos = data.panEnd;
-        float startScale = data.zoomStart;
-        float endScale = data.zoomEnd;
-
         while (elapsed < data.panDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / data.panDuration;
-            float smooth = Mathf.SmoothStep(0f, 1f, t);
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / data.panDuration);
 
-            rt.anchoredPosition = Vector2.Lerp(startPos, endPos, smooth);
-            float scale = Mathf.Lerp(startScale, endScale, smooth);
+            rt.anchoredPosition = Vector2.Lerp(data.panStart, data.panEnd, t);
+            float scale = Mathf.Lerp(data.zoomStart, data.zoomEnd, t);
             rt.localScale = new Vector3(scale, scale, 1f);
 
             yield return null;
