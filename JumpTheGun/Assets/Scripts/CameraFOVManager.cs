@@ -29,12 +29,12 @@ public class CameraFOVManager : MonoBehaviour
 
         float targetFOV;
 
-        if (playerMovement.isRunningPublic())
+        if (playerMovement.IsRunningPublic())
         {
             targetFOV = zoomFOV;
 
             // Extra FOV boost on top of run FOV when sliding
-            if (playerMovement.isSlidingPublic())
+            if (playerMovement.IsSlidingPublic())
             {
                 targetFOV = zoomFOV + 10f;
             }

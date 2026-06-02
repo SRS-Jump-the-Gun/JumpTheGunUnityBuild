@@ -35,14 +35,8 @@ public class Shotgun : Gun
     //Shotgun projectile burst
     private void SpawnBurst()
     {
-        
-        if (currentAmmo <= 0) 
+        if (currentAmmo <= 0)
         {
-            // Point to PlayerMovementForce instead of PlayerMovement
-            if (PlayerMovementForce.instance != null)
-            {
-                PlayerMovementForce.instance.setLeftClickAllowed(false);
-            }
             return;
         }
         if (isReloading)    // If player is currently reloading, cant shoot
@@ -134,7 +128,7 @@ public class Shotgun : Gun
             currentAmmo = maxAmmo;
             ammoText.text = currentAmmo.ToString();
         }
-        
+
 
     }
 }
