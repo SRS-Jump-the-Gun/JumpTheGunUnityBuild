@@ -12,15 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9dc3b326e5049888fd19bf82f62429, type: 3}
   m_Name: helddown
   m_EditorClassIdentifier: 
-  panelImage: {fileID: 0}
+  panelImage: {fileID: 21300000, guid: 859028506994941fe887f6109b5848bc, type: 3}
   panStart: {x: -20, y: 0}
   panEnd: {x: 20, y: 0}
   zoomStart: 1.05
   zoomEnd: 1
   panDuration: 8
-  speakerName: Jake
+  textColor: {r: 1, g: 1, b: 1, a: 1}
   dialogueLines:
-  - I spent years trying to leave all this behind.
-  - Looks like it followed me home.
-  voiceLine: {fileID: 0}
+  - speakerName: 'Max:'
+    text: NOOOOOOOOOO
+    voiceLine: {fileID: 8300000, guid: c3dd6ef1c2fcb43c7989e6d7210df08c, type: 3}
+  - speakerName: 'Max:'
+    text: DONT DO THIS PLEASE!
+    voiceLine: {fileID: 0}
+  - speakerName: 'Joceline:'
+    text: Dad help me!!!
+    voiceLine: {fileID: 0}
   ambientSound: {fileID: 0}

@@ -1,5 +1,13 @@
 using UnityEngine;
 
+[System.Serializable]
+public struct DialogueLine
+{
+    public string speakerName;
+    [TextArea(2, 5)] public string text;
+    public AudioClip voiceLine;
+}
+
 [CreateAssetMenu(fileName = "CutscenePanel", menuName = "Cutscene/Panel Data")]
 public class CutscenePanelData : ScriptableObject
 {
@@ -14,10 +22,9 @@ public class CutscenePanelData : ScriptableObject
     public float panDuration = 6f;
 
     [Header("Dialogue")]
-    public string speakerName;
-    [TextArea(2, 5)] public string[] dialogueLines;
+    public Color textColor = Color.white;
+    public DialogueLine[] dialogueLines;
 
     [Header("Audio")]
-    public AudioClip voiceLine;
     public AudioClip ambientSound;
 }

@@ -12,14 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9dc3b326e5049888fd19bf82f62429, type: 3}
   m_Name: joc_laying_front
   m_EditorClassIdentifier: 
-  panelImage: {fileID: 21300000, guid: c02f0191074a64eee94ea378a22fe805, type: 3}
+  panelImage: {fileID: 21300000, guid: 124114447b31d49bc83fee63f05cf5d7, type: 3}
   panStart: {x: -30, y: 0}
   panEnd: {x: 30, y: 0}
   zoomStart: 1
   zoomEnd: 1.06
   panDuration: 6
-  speakerName: 
+  textColor: {r: 1, g: 1, b: 1, a: 1}
   dialogueLines:
-  - The city never truly sleeps.
-  voiceLine: {fileID: 0}
-  ambientSound: {fileID: 0}
+  - speakerName: 'Joceline:'
+    text: "\u201C...aaand now you are pretty just like me!"
+    voiceLine: {fileID: 8300000, guid: 839950154bfb04078bc7a2d596c8c08b, type: 3}
+  ambientSound: {fileID: 8300000, guid: c04dcfddfdab34461af2b4c29ea2e24e, type: 3}

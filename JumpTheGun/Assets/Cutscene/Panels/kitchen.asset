@@ -12,13 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9dc3b326e5049888fd19bf82f62429, type: 3}
   m_Name: kitchen
   m_EditorClassIdentifier: 
-  panelImage: {fileID: 0}
+  panelImage: {fileID: 21300000, guid: c02f0191074a64eee94ea378a22fe805, type: 3}
   panStart: {x: 0, y: 0}
   panEnd: {x: 0, y: 0}
   zoomStart: 1
-  zoomEnd: 1.05
+  zoomEnd: 1.02
   panDuration: 6
-  speakerName: 
-  dialogueLines: []
-  voiceLine: {fileID: 0}
-  ambientSound: {fileID: 0}
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueLines:
+  - speakerName: 'Narrator:'
+    text: "It all started on a quiet weekend afternoon in the Morris household. Father
+      and daughter sat side by side on the couch, two steaming Star Wars mugs and
+      a plate of peeled oranges resting on the table beside them. \r\n"
+    voiceLine: {fileID: 0}
+  - speakerName: 'Narrator:'
+    text: "Sunlight streaked in between the half-closed blue curtains onto the wooden
+      floor. A few animal plushes and cotton throw pillows were scattered around
+      the couch area. On the wall, framed and arranged with great care, were a child\u2019s
+      crayon and watercolor drawings. \r\n\r\n"
+    voiceLine: {fileID: 0}
+  ambientSound: {fileID: 8300000, guid: c04dcfddfdab34461af2b4c29ea2e24e, type: 3}

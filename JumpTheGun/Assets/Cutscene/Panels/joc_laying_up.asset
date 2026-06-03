@@ -12,15 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9dc3b326e5049888fd19bf82f62429, type: 3}
   m_Name: joc_laying_up
   m_EditorClassIdentifier: 
-  panelImage: {fileID: 0}
+  panelImage: {fileID: 21300000, guid: 57f629c8935124821ad49aefb7b24a9e, type: 3}
   panStart: {x: 0, y: -15}
   panEnd: {x: 0, y: 15}
   zoomStart: 1.05
   zoomEnd: 1.1
   panDuration: 9
-  speakerName: Dispatch
+  textColor: {r: 1, g: 1, b: 1, a: 1}
   dialogueLines:
-  - Shots fired on the east side.
-  - "We have a report of a young girl\u2014 taken by force."
-  voiceLine: {fileID: 0}
-  ambientSound: {fileID: 0}
+  - speakerName: 'Joceline:'
+    text: Do you like these colors? Hey, I think I have a talent in this.
+    voiceLine: {fileID: 0}
+  - speakerName: 'Max:'
+    text: "I\u2019m happy with anything you made me, princess."
+    voiceLine: {fileID: 0}
+  ambientSound: {fileID: 8300000, guid: c04dcfddfdab34461af2b4c29ea2e24e, type: 3}

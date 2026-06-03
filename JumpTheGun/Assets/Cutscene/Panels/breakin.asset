@@ -12,13 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9dc3b326e5049888fd19bf82f62429, type: 3}
   m_Name: breakin
   m_EditorClassIdentifier: 
-  panelImage: {fileID: 0}
+  panelImage: {fileID: 21300000, guid: fe230f9e82c6641ae91be2d1705a18f7, type: 3}
   panStart: {x: 0, y: 0}
   panEnd: {x: 0, y: 0}
   zoomStart: 1
   zoomEnd: 1.25
   panDuration: 4
-  speakerName: 
-  dialogueLines: []
-  voiceLine: {fileID: 0}
+  textColor: {r: 1, g: 1, b: 1, a: 1}
+  dialogueLines:
+  - speakerName: 'EVIL MERC: '
+    text: GET HER !
+    voiceLine: {fileID: 8300000, guid: 620cb3132ccbe4d5bb2d27fa7cc1d0f1, type: 3}
   ambientSound: {fileID: 0}

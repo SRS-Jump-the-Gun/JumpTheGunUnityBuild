@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c9dc3b326e5049888fd19bf82f62429, type: 3}
+  m_Name: Weapons
+  m_EditorClassIdentifier: 
+  panelImage: {fileID: 21300000, guid: c3a53cd1491469448a8a145cedbfa7a0, type: 3}
+  panStart: {x: -30, y: 0}
+  panEnd: {x: 30, y: 0}
+  zoomStart: 1
+  zoomEnd: 1.06
+  panDuration: 6
+  textColor: {r: 0, g: 0, b: 0, a: 1}
+  dialogueLines:
+  - speakerName: 'Narrator:'
+    text: Max moved upstairs towards the attic.
+    voiceLine: {fileID: 0}
+  - speakerName: 'Narrator:'
+    text: "The gentle, relaxed father from moments earlier was gone. In his place
+      remained something colder. Silent footsteps, measured breathing, a balanced
+      stillness of a predator prepared to strike. \r\n"
+    voiceLine: {fileID: 0}
+  - speakerName: 'Narrator:'
+    text: "He retrieved the old gear he had sworn never to touch again, picking up
+      the merc\u2019s dropped gun from under the table and stepping out into the
+      trampled backyard, closing the remains of the back door behind him."
+    voiceLine: {fileID: 0}
+  - speakerName: 'Narrator:'
+    text: "To the west, the sedan was already disappearing into the distance while
+      several mercenaries lingered behind to cover the abductors\u2019 escape."
+    voiceLine: {fileID: 0}
+  - speakerName: 'Narrator:'
+    text: Max watched them without expression.
+    voiceLine: {fileID: 0}
+  - speakerName: 'Narrator:'
+    text: "He already had a good idea who was responsible. The past calls, and he
+      must answer. \r\n"
+    voiceLine: {fileID: 0}
+  ambientSound: {fileID: 0}

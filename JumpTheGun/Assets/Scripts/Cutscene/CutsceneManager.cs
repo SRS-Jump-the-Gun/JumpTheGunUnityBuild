@@ -81,26 +81,28 @@ public class CutsceneManager : MonoBehaviour
         if (kenBurnsCoroutine != null) StopCoroutine(kenBurnsCoroutine);
         kenBurnsCoroutine = StartCoroutine(KenBurns(panelImage, data));
 
-        if (data.ambientSound != null && sfxSource != null)
+        if (sfxSource != null)
         {
-            sfxSource.clip = data.ambientSound;
-            sfxSource.loop = true;
-            sfxSource.Play();
+            if (data.ambientSound != null)
+            {
+                sfxSource.clip = data.ambientSound;
+                sfxSource.loop = true;
+                sfxSource.Play();
+            }
+            else
+            {
+                sfxSource.Stop();
+            }
         }
-
-        if (data.voiceLine != null && voiceSource != null)
-            voiceSource.PlayOneShot(data.voiceLine);
 
         if (data.dialogueLines != null && data.dialogueLines.Length > 0)
         {
             currentLineIndex = 0;
             dialogueBox.SetActive(true);
-
-            bool hasSpeaker = !string.IsNullOrEmpty(data.speakerName);
-            speakerNameText.gameObject.SetActive(hasSpeaker);
-            if (hasSpeaker) speakerNameText.text = data.speakerName;
-
-            yield return RunTypewriter(data.dialogueLines[0]);
+            dialogueText.color = data.textColor;
+            ShowSpeaker(data.dialogueLines[0].speakerName);
+            PlayVoiceLine(data.dialogueLines[0].voiceLine);
+            yield return RunTypewriter(data.dialogueLines[0].text);
         }
         else
         {
@@ -136,7 +138,7 @@ public class CutsceneManager : MonoBehaviour
     private void SkipTypewriter()
     {
         if (typewriterCoroutine != null) StopCoroutine(typewriterCoroutine);
-        dialogueText.text = panels[currentPanelIndex].dialogueLines[currentLineIndex];
+        dialogueText.text = panels[currentPanelIndex].dialogueLines[currentLineIndex].text;
         isTyping = false;
         ShowContinuePrompt(true);
     }
@@ -148,7 +150,9 @@ public class CutsceneManager : MonoBehaviour
 
         if (data.dialogueLines != null && currentLineIndex < data.dialogueLines.Length)
         {
-            StartCoroutine(RunTypewriter(data.dialogueLines[currentLineIndex]));
+            ShowSpeaker(data.dialogueLines[currentLineIndex].speakerName);
+            PlayVoiceLine(data.dialogueLines[currentLineIndex].voiceLine);
+            StartCoroutine(RunTypewriter(data.dialogueLines[currentLineIndex].text));
         }
         else
         {
@@ -215,6 +219,8 @@ public class CutsceneManager : MonoBehaviour
 
     private IEnumerator EndCutscene()
     {
+        if (kenBurnsCoroutine != null) StopCoroutine(kenBurnsCoroutine);
+        nextPanelImage.color = new Color(1f, 1f, 1f, 0f);
         dialogueBox.SetActive(false);
         continuePrompt.SetActive(false);
         yield return FadeScreen(0f, 1f, introFadeDuration);
@@ -232,6 +238,20 @@ public class CutsceneManager : MonoBehaviour
             yield return null;
         }
         screenFade.alpha = to;
+    }
+
+    private void PlayVoiceLine(AudioClip clip)
+    {
+        if (voiceSource == null) return;
+        voiceSource.Stop();
+        if (clip != null) voiceSource.PlayOneShot(clip);
+    }
+
+    private void ShowSpeaker(string name)
+    {
+        bool hasSpeaker = !string.IsNullOrEmpty(name);
+        speakerNameText.gameObject.SetActive(hasSpeaker);
+        if (hasSpeaker) speakerNameText.text = name;
     }
 
     private void ShowContinuePrompt(bool show)

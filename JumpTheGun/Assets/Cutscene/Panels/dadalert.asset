@@ -12,14 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c9dc3b326e5049888fd19bf82f62429, type: 3}
   m_Name: dadalert
   m_EditorClassIdentifier: 
-  panelImage: {fileID: 0}
+  panelImage: {fileID: 21300000, guid: 9ea165df357784aaa96371cdb7781b07, type: 3}
   panStart: {x: 15, y: 0}
   panEnd: {x: -15, y: 0}
   zoomStart: 1.1
   zoomEnd: 1
   panDuration: 5
-  speakerName: Jake
+  textColor: {r: 1, g: 1, b: 1, a: 1}
   dialogueLines:
-  - They picked the wrong family.
-  voiceLine: {fileID: 0}
+  - speakerName: 'Max:'
+    text: Huh..
+    voiceLine: {fileID: 0}
   ambientSound: {fileID: 0}
