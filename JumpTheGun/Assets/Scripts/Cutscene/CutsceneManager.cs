@@ -259,3 +259,4 @@ public class CutsceneManager : MonoBehaviour
         continuePrompt.SetActive(show);
     }
 }
+git 
