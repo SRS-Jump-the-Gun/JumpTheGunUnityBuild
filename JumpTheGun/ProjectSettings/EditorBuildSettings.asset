@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/L1_jose.unity
     guid: 53b0951cf29b0fd4e8a0dbe534699633
+  - enabled: 1
+    path: Assets/Scenes/L2.unity
+    guid: bf4b5eab24cc7b54bb11a8c32c7a649c
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

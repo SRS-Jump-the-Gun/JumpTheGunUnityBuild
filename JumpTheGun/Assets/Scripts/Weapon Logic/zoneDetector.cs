@@ -3,34 +3,34 @@ using UnityEngine;
 public class zoneDetector : MonoBehaviour
 {
     [SerializeField] private GameObject pistol;
-    void Update()
-    {
+    [SerializeField] private int damage = 20;
 
-    }
+    void Update() { }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Collider active" + pistol.name);
-        if (other.CompareTag("Enemy") )
-        {
-            Debug.Log("HITTING" + other.name);
+        if (!other.CompareTag("Enemy")) return;
+
+        Debug.Log("HITTING " + other.name);
+
+        // Enemies that implement IDamageable (e.g. the boss) take HP damage.
+        // Regular enemies without IDamageable are destroyed instantly.
+        IDamageable damageable = other.GetComponent<IDamageable>()
+                              ?? other.GetComponentInParent<IDamageable>();
+        if (damageable != null)
+            damageable.TakeDamage(damage);
+        else
             Destroy(other.gameObject);
-            //other.GetComponent<scriptname>().takeDamage();
-            //Debug.Log("Colliding!!!");
-        }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        //Debug.Log("Collider active");
+        if (!other.CompareTag("Enemy")) return;
 
-        if (other.CompareTag("Enemy") )
-        {
-            Debug.Log("HITTINGGGG" + other.name);
+        IDamageable damageable = other.GetComponent<IDamageable>()
+                              ?? other.GetComponentInParent<IDamageable>();
+        if (damageable == null)
             Destroy(other.gameObject);
-           // Debug.Log("Colliding!!!");
-
-            //other.GetComponent<scriptname>().takeDamage();
-        }
+        // IDamageable targets are only hit in OnTriggerEnter to avoid continuous damage per frame.
     }
 }
