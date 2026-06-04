@@ -41,11 +41,11 @@ public class BossArenaHazard : MonoBehaviour
     public void TriggerRandomHazard(BossEnemy.BossPhase phase, Vector3 playerPos)
     {
         currentPhase = phase;
+        Debug.Log($"BossArenaHazard: TriggerRandomHazard called — phase={phase}, playerPos={playerPos}");
 
         switch (phase)
         {
             case BossEnemy.BossPhase.Phase1_Projectile:
-                // Only falling debris in phase 1
                 SpawnDebris(playerPos);
                 break;
 
@@ -71,8 +71,13 @@ public class BossArenaHazard : MonoBehaviour
     /// </summary>
     public void TriggerShockwave(Vector3 worldPos)
     {
-        if (shockwavePrefab == null) return;
-        Instantiate(shockwavePrefab, worldPos, Quaternion.Euler(0f, 0f, 0f));
+        if (shockwavePrefab == null)
+        {
+            Debug.LogWarning("BossArenaHazard: Shockwave Prefab is not assigned!", this);
+            return;
+        }
+        Instantiate(shockwavePrefab, worldPos, Quaternion.identity);
+        Debug.Log($"BossArenaHazard: Shockwave spawned at {worldPos}");
     }
 
     // ─────────────────────────────────────────
@@ -80,7 +85,11 @@ public class BossArenaHazard : MonoBehaviour
     // ─────────────────────────────────────────
     private void SpawnDebris(Vector3 playerPos)
     {
-        if (debrisPrefab == null) return;
+        if (debrisPrefab == null)
+        {
+            Debug.LogWarning("BossArenaHazard: Debris Prefab is not assigned!", this);
+            return;
+        }
 
         // Pick a drop anchor if available; otherwise drop straight above the player
         Vector3 targetPos = playerPos;
@@ -106,23 +115,32 @@ public class BossArenaHazard : MonoBehaviour
         GameObject obj = Instantiate(debrisPrefab);
         FallingDebris fd = obj.GetComponent<FallingDebris>();
         if (fd != null)
+        {
             fd.Initialize(targetPos);
+            Debug.Log($"BossArenaHazard: Debris spawned at {targetPos}");
+        }
         else
-            Destroy(obj); // Safety — missing script
+        {
+            Debug.LogWarning("BossArenaHazard: Debris prefab is missing FallingDebris script!", this);
+            Destroy(obj);
+        }
     }
 
     private void SpawnShockwaveAtRandomAnchor()
     {
         if (shockwavePrefab == null || debrisAnchors == null || debrisAnchors.Length == 0)
         {
-            // Fall back to transform position if no anchors defined
             TriggerShockwave(transform.position);
             return;
         }
 
         Transform anchor = debrisAnchors[Random.Range(0, debrisAnchors.Length)];
-        // Project anchor XZ to the floor (Y = 0 relative to scene floor)
         Vector3 pos = new Vector3(anchor.position.x, 0f, anchor.position.z);
+
+        // Raycast down from the anchor to find the actual floor level
+        if (Physics.Raycast(new Vector3(pos.x, anchor.position.y + 2f, pos.z), Vector3.down, out RaycastHit hit, 40f))
+            pos.y = hit.point.y + 0.05f;
+
         TriggerShockwave(pos);
     }
 }

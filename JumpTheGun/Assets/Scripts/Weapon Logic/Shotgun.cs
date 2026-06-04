@@ -4,6 +4,7 @@ using TMPro;
 public class Shotgun : Gun
 {
     [SerializeField] private float bulletSpd = 50f;
+    [SerializeField] private int bulletDamage = 15;
     [SerializeField] private int spawnCount = 12;
     [SerializeField] private float coneAngle = 15f;
     [SerializeField] private int shotgunAmmo = 2;
@@ -51,11 +52,13 @@ public class Shotgun : Gun
         BulletSound();
         StartCoroutine(SetCollisionZoneActive(0.1f));
 
-        // Cache player colliders once so bullets can ignore them on spawn,
-        // preventing self-damage when shooting downward into the player's own collider
+        // Cache colliders to ignore: player body + the shotgun cone zone itself
         Collider[] playerColliders = PlayerMovementForce.instance != null
             ? PlayerMovementForce.instance.GetComponents<Collider>()
             : new Collider[0];
+        Collider coneCollider = shotgunCollisionZone != null
+            ? shotgunCollisionZone.GetComponent<Collider>()
+            : null;
 
         for (int i = 0; i < spawnCount; i++)
         {
@@ -70,12 +73,19 @@ public class Shotgun : Gun
 
             GameObject bulletObj = Instantiate(bulletPrefab, playerCamera.transform.position + playerCamera.transform.forward, Quaternion.LookRotation(finalDirection));
 
-            // Ignore collision between this bullet and all of the player's colliders
+            if (bulletObj.TryGetComponent<BulletLogic>(out var bl))
+            {
+                bl.isPlayerBullet = true;
+                bl.damage = bulletDamage;
+            }
+
             Collider bulletCol = bulletObj.GetComponent<Collider>();
             if (bulletCol != null)
             {
                 foreach (Collider playerCol in playerColliders)
                     Physics.IgnoreCollision(bulletCol, playerCol);
+                if (coneCollider != null)
+                    Physics.IgnoreCollision(bulletCol, coneCollider);
             }
 
             Rigidbody rb = bulletObj.GetComponent<Rigidbody>();

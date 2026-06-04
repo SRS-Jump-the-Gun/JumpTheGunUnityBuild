@@ -3,6 +3,7 @@ using UnityEngine;
 public class Pistol : Gun
 {
     [SerializeField] private float bulletSpd = 50f;
+    [SerializeField] private int bulletDamage = 20;
     [SerializeField] private int pistolAmmo = 6;
     [SerializeField] private float pistolReloadDelay = 0.2f;
     [SerializeField] public GameObject pistolCollision;
@@ -73,7 +74,14 @@ public class Pistol : Gun
 
     private void spawnBullet()
     {
-        GameObject bullet = Instantiate(bulletPrefab, playerCamera.transform.position + playerCamera.transform.forward, Quaternion.identity);
+        GameObject bullet = Instantiate(bulletPrefab, playerCamera.transform.position + playerCamera.transform.forward, Quaternion.LookRotation(playerCamera.transform.forward));
+
+        if (bullet.TryGetComponent<BulletLogic>(out var bl))
+        {
+            bl.isPlayerBullet = true;
+            bl.damage = bulletDamage;
+        }
+
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         rb.linearVelocity = playerCamera.transform.forward * bulletSpd;
     }

@@ -87,6 +87,20 @@ public class BossEnemy : MonoBehaviour, IDamageable
     private float nextHazardTime;
 
     // ─────────────────────────────────────────
+    //  Hit Feedback
+    // ─────────────────────────────────────────
+    [Header("Hit Feedback")]
+    [SerializeField] private Color hitFlashColor = Color.white;
+    [SerializeField] private float hitFlashDuration = 0.12f;
+    [SerializeField] private AudioClip hitSoundClip;
+    [SerializeField] private AudioSource audioSource;
+
+    private Renderer[]          bodyRenderers;
+    private MaterialPropertyBlock hitMPB;
+    private bool                isFlashing;
+    private static readonly int BaseColorID = Shader.PropertyToID("_BaseColor");
+
+    // ─────────────────────────────────────────
     //  Events — subscribe in BossHealthBar / BossManager
     // ─────────────────────────────────────────
     public System.Action<int, int> OnHealthChanged;   // (currentHP, maxHP)
@@ -107,6 +121,15 @@ public class BossEnemy : MonoBehaviour, IDamageable
 
         agent.speed = normalSpeed;
         if (laserLine != null) laserLine.enabled = false;
+
+        if (arenaHazard == null)
+            Debug.LogWarning("BossEnemy: Arena Hazard is not assigned — debris and shockwaves will not spawn.", this);
+
+        // Collect only mesh renderers (excludes LineRenderer which has no body material)
+        bodyRenderers = System.Array.FindAll(
+            GetComponentsInChildren<Renderer>(),
+            r => r is MeshRenderer || r is SkinnedMeshRenderer);
+        hitMPB = new MaterialPropertyBlock();
 
         OnHealthChanged?.Invoke(currentHP, maxHP);
     }
@@ -218,6 +241,10 @@ public class BossEnemy : MonoBehaviour, IDamageable
 
         GameObject proj = Instantiate(projectilePrefab, firePoint.position, Quaternion.LookRotation(dir));
 
+        // Pass boss reference so parried projectiles know who to home back to
+        if (proj.TryGetComponent<BossProjectile>(out var bp))
+            bp.SetBoss(this);
+
         // Prevent projectile from hitting the boss itself
         if (proj.TryGetComponent<Collider>(out var projCol))
             foreach (Collider myCol in GetComponentsInChildren<Collider>())
@@ -243,7 +270,9 @@ public class BossEnemy : MonoBehaviour, IDamageable
         laserLine.enabled = true;
         laserLine.SetPosition(0, firePoint.position);
 
-        if (Physics.Raycast(firePoint.position, dir, out RaycastHit hit, 40f, obstacleLayer))
+        // If obstacleLayer is 0 (nothing selected in Inspector), fall back to all layers
+        LayerMask laserMask = obstacleLayer.value == 0 ? Physics.DefaultRaycastLayers : obstacleLayer;
+        if (Physics.Raycast(firePoint.position, dir, out RaycastHit hit, 40f, laserMask))
         {
             laserLine.SetPosition(1, hit.point);
 
@@ -381,11 +410,31 @@ public class BossEnemy : MonoBehaviour, IDamageable
         currentHP = Mathf.Max(0, currentHP - amount);
         OnHealthChanged?.Invoke(currentHP, maxHP);
 
+        // Hit feedback
+        if (hitSoundClip != null && audioSource != null)
+            audioSource.PlayOneShot(hitSoundClip);
+        if (!isFlashing)
+            StartCoroutine(HitFlash());
+
         if (currentHP == 0)
         {
             OnBossDefeated?.Invoke();
             Destroy(gameObject);
         }
+    }
+
+    private IEnumerator HitFlash()
+    {
+        isFlashing = true;
+        hitMPB.SetColor(BaseColorID, hitFlashColor);
+        foreach (var r in bodyRenderers)
+            r.SetPropertyBlock(hitMPB);
+
+        yield return new WaitForSeconds(hitFlashDuration);
+
+        foreach (var r in bodyRenderers)
+            r.SetPropertyBlock(null);
+        isFlashing = false;
     }
 
     // ─────────────────────────────────────────

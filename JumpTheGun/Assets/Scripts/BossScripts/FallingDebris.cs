@@ -22,18 +22,29 @@ public class FallingDebris : MonoBehaviour
     [Tooltip("Radius around the impact point that counts as a hit.")]
     [SerializeField] private float impactRadius = 1.8f;
 
-    [Tooltip("Optional flat disc/quad child GameObject used as the warning shadow.")]
+    [Tooltip("Speed in units/second the debris falls. Lower = more dramatic and visible.")]
+    [SerializeField] private float fallSpeed = 5f;
+
+    [Tooltip("Child GameObject used as the warning shadow on the ground. Drag the WarningMarker child here.")]
     [SerializeField] private GameObject warningMarker;
 
     private Rigidbody rb;
     private bool hasFallen;
     private bool hasDealtDamage;
+    private GameObject activeMarker; // reference after detaching from parent
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        rb.isKinematic = true; // Hold still during warning phase
+        rb.isKinematic = true;
         rb.useGravity  = false;
+    }
+
+    private void OnDestroy()
+    {
+        // Clean up detached marker if debris is destroyed mid-warning
+        if (activeMarker != null)
+            Destroy(activeMarker);
     }
 
     /// <summary>
@@ -41,79 +52,109 @@ public class FallingDebris : MonoBehaviour
     /// </summary>
     public void Initialize(Vector3 targetWorldPos)
     {
-        // Position above the target
-        transform.position = targetWorldPos + Vector3.up * spawnHeight;
+        // Cast downward from the player's position — ceiling is above the player so this
+        // always finds the floor below rather than the roof above.
+        Vector3 groundPos = targetWorldPos;
+        if (Physics.Raycast(targetWorldPos, Vector3.down, out RaycastHit hit, 100f))
+            groundPos.y = hit.point.y + 0.05f;
+        else
+            groundPos.y = 0f;
+
+        // Clamp spawn height to ceiling so debris doesn't spawn inside the roof
+        float actualHeight = spawnHeight;
+        if (Physics.Raycast(groundPos, Vector3.up, out RaycastHit ceiling, spawnHeight + 1f))
+            actualHeight = Mathf.Max(2f, ceiling.distance - 0.5f);
+
+        transform.position = groundPos + Vector3.up * actualHeight;
+        Debug.Log($"FallingDebris: Spawned at {transform.position} (height={actualHeight:F1})");
+
+
+        if (warningMarker == null)
+            Debug.LogWarning("FallingDebris: Warning Marker is not assigned — no visual warning will appear.", this);
 
         if (warningMarker != null)
         {
-            // Place the warning on the ground directly below
-            warningMarker.transform.position = targetWorldPos;
-            warningMarker.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            warningMarker.transform.SetParent(null);
+            warningMarker.transform.position = groundPos;
+            warningMarker.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
             warningMarker.SetActive(true);
+            activeMarker = warningMarker;
         }
 
-        StartCoroutine(DropSequence(targetWorldPos));
+        StartCoroutine(DropSequence(groundPos));
     }
 
     private IEnumerator DropSequence(Vector3 landPos)
     {
-        // Warning phase — pulse the marker
         float t = 0f;
+        bool markerVisible = true;
+
         while (t < warningDuration)
         {
             t += Time.deltaTime;
 
-            if (warningMarker != null)
+            if (activeMarker != null)
             {
-                // Blink faster as we get closer to the drop
-                float blinkSpeed = Mathf.Lerp(4f, 20f, t / warningDuration);
-                warningMarker.SetActive(Mathf.Sin(t * blinkSpeed) > 0f);
+                float progress = t / warningDuration;
+                bool shouldShow;
+
+                if (progress < 0.65f)
+                {
+                    // Solid on for the first 65% so the player clearly sees the marker
+                    shouldShow = true;
+                }
+                else
+                {
+                    // Rapid blink for the final 35% as a "drop imminent" signal
+                    float blinkSpeed = Mathf.Lerp(8f, 28f, (progress - 0.65f) / 0.35f);
+                    shouldShow = Mathf.Sin(t * blinkSpeed) >= 0f;
+                }
+
+                if (shouldShow != markerVisible)
+                {
+                    markerVisible = shouldShow;
+                    activeMarker.SetActive(markerVisible);
+                }
             }
 
             yield return null;
         }
 
-        if (warningMarker != null)
-            warningMarker.SetActive(false);
+        if (activeMarker != null)
+        {
+            Destroy(activeMarker);
+            activeMarker = null;
+        }
 
-        // Start falling
-        rb.isKinematic = false;
-        rb.useGravity  = true;
+        // Fall at controlled speed so the player can see it coming
+        rb.isKinematic = true;
+        rb.useGravity  = false;
         hasFallen      = true;
 
-        // Self-destruct if it falls forever (e.g., missed the floor)
-        Destroy(gameObject, 6f);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (!hasFallen || hasDealtDamage) return;
-
-        hasDealtDamage = true;
-
-        // Direct hit — destroy immediately and deal damage
-        if (collision.collider.CompareTag("Player"))
+        float targetY = landPos.y;
+        while (transform.position.y > targetY + 0.05f)
         {
-            IDamageable d = collision.collider.GetComponent<IDamageable>()
-                         ?? collision.collider.GetComponentInParent<IDamageable>();
-            d?.TakeDamage(damage);
-            Destroy(gameObject);
-            return;
+            float newY = Mathf.MoveTowards(transform.position.y, targetY, fallSpeed * Time.deltaTime);
+            rb.MovePosition(new Vector3(transform.position.x, newY, transform.position.z));
+            yield return null;
         }
 
-        // Hit the floor — check if player is close enough to still catch the blast
-        Collider[] nearby = Physics.OverlapSphere(transform.position, impactRadius);
-        foreach (Collider col in nearby)
+        // Snap to ground and deal impact damage
+        rb.MovePosition(new Vector3(transform.position.x, targetY, transform.position.z));
+
+        if (!hasDealtDamage)
         {
-            if (!col.CompareTag("Player")) continue;
-            IDamageable d = col.GetComponent<IDamageable>() ?? col.GetComponentInParent<IDamageable>();
-            d?.TakeDamage(damage);
-            break;
+            hasDealtDamage = true;
+            Collider[] nearby = Physics.OverlapSphere(transform.position, impactRadius);
+            foreach (Collider col in nearby)
+            {
+                if (!col.CompareTag("Player")) continue;
+                IDamageable d = col.GetComponent<IDamageable>() ?? col.GetComponentInParent<IDamageable>();
+                d?.TakeDamage(damage);
+                break;
+            }
         }
 
-        // Sit on the ground briefly then clean up
-        rb.linearVelocity = Vector3.zero;
-        rb.isKinematic = true;
         Destroy(gameObject, 2f);
     }
 }

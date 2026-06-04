@@ -73,6 +73,11 @@ public class BossManager : MonoBehaviour
             bossIntroText.gameObject.SetActive(false);
         }
 
+        // Show health bar first so BossHealthBar.OnEnable() subscribes before
+        // BossEnemy.Start() fires the initial OnHealthChanged event
+        if (bossHealthBarCanvas != null)
+            bossHealthBarCanvas.SetActive(true);
+
         // Activate boss
         if (bossObject != null)
         {
@@ -82,10 +87,6 @@ public class BossManager : MonoBehaviour
             if (boss != null)
                 boss.OnBossDefeated += StartVictorySequence;
         }
-
-        // Show health bar
-        if (bossHealthBarCanvas != null)
-            bossHealthBarCanvas.SetActive(true);
 
         // Start boss music
         if (musicSource != null && bossMusicClip != null)

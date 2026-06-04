@@ -154,7 +154,8 @@ MonoBehaviour:
   warningDuration: 1.5
   damage: 35
   impactRadius: 1.8
-  warningMarker: {fileID: 0}
+  fallSpeed: 5
+  warningMarker: {fileID: 9036270374536061975}
 --- !u!1 &9036270374536061975
 GameObject:
   m_ObjectHideFlags: 0
@@ -219,7 +220,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 3973ed10450714eafb105836bc104c64, type: 2}
+  - {fileID: 2100000, guid: 54e8fd6acb722448e9cf56ddebf99384, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

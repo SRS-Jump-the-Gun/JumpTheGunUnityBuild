@@ -16,6 +16,7 @@ public class BossHealthBar : MonoBehaviour
 {
     [Header("Boss Reference")]
     [SerializeField] private BossEnemy boss;
+    [SerializeField] private string bossDisplayName = "THE BOSS";
 
     [Header("UI Elements")]
     [SerializeField] private Slider healthSlider;
@@ -30,11 +31,30 @@ public class BossHealthBar : MonoBehaviour
 
     private void OnEnable()
     {
-        if (boss == null) return;
+        if (boss == null)
+        {
+            Debug.LogWarning("BossHealthBar: Boss reference is not assigned in the Inspector!", this);
+            return;
+        }
 
         boss.OnHealthChanged += HandleHealthChanged;
         boss.OnPhaseChanged  += HandlePhaseChanged;
         boss.OnBossDefeated  += HandleBossDefeated;
+
+        if (bossNameText != null)
+            bossNameText.text = bossDisplayName;
+        else
+            Debug.LogWarning("BossHealthBar: Boss Name Text is not assigned in the Inspector!", this);
+
+        if (healthSlider != null)
+            healthSlider.value = 1f;
+        else
+            Debug.LogWarning("BossHealthBar: Health Slider is not assigned in the Inspector!", this);
+
+        if (phaseLabel == null)
+            Debug.LogWarning("BossHealthBar: Phase Label is not assigned in the Inspector!", this);
+
+        HandlePhaseChanged(BossEnemy.BossPhase.Phase1_Projectile);
     }
 
     private void OnDisable()
