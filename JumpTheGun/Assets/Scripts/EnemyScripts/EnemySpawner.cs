@@ -44,9 +44,13 @@ public class EnemySpawner : MonoBehaviour
     private bool hasSpawned = false;
     private List<GameObject> activeEnemies = new List<GameObject>();
 
-    /// <summary>
-    /// Detects when the player enters the trigger volume attached to this GameObject.
-    /// </summary>
+    private void Awake()
+    {
+        Rigidbody rb = gameObject.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;

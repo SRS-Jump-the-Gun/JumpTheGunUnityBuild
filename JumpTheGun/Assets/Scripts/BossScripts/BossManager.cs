@@ -45,6 +45,13 @@ public class BossManager : MonoBehaviour
 
     private bool fightStarted;
 
+    private void Awake()
+    {
+        Rigidbody rb = gameObject.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.useGravity = false;
+    }
+
     // ─────────────────────────────────────────
     //  Fight Trigger
     // ─────────────────────────────────────────

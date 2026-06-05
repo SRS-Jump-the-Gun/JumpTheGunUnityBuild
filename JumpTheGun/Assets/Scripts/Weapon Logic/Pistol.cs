@@ -34,6 +34,7 @@ public class Pistol : Gun
         if (Input.GetMouseButtonDown(0) && currentAmmo > 0 && !isReloading)
         {
             StartCoroutine(SetCollisionZoneActive(0.1f));
+            StartCoroutine(ShowMuzzleFlash());
             Debug.Log("Shooting!");
             currentAmmo--;
             ammoText.text = currentAmmo.ToString();

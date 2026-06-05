@@ -21,6 +21,7 @@ public class BossHealthBar : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private Slider healthSlider;
     [SerializeField] private Image  fillImage;       // Optional: the slider fill image for color changes
+    [SerializeField] private Image  bossPortrait;    // Optional: boss sprite displayed next to the health bar
     [SerializeField] private TMP_Text bossNameText;
     [SerializeField] private TMP_Text phaseLabel;
 

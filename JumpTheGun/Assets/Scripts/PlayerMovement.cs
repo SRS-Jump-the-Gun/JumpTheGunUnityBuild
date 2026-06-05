@@ -175,6 +175,7 @@ public class PlayerMovement : MonoBehaviour
     void HandleMouseLook()
     {
         if (!canMove) return;
+        if (Inventory_test.IsWheelOpen) return;
 
         rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);

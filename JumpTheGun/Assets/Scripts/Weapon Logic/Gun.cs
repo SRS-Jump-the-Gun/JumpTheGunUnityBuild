@@ -13,6 +13,11 @@ public abstract class Gun : MonoBehaviour
     protected int currentAmmo;
     protected bool isReloading = false;
 
+    [Header("Muzzle Flash")]
+    [SerializeField] protected SpriteRenderer muzzleFlashRenderer;
+    [SerializeField] protected Sprite[] muzzleFlashSprites;
+    [SerializeField] protected float muzzleFlashFrameTime = 0.04f;
+
 
     //May need to be fixed ------------------------------------
     protected virtual void Start()
@@ -64,6 +69,20 @@ public abstract class Gun : MonoBehaviour
         collisionZone.SetActive(false);
         Debug.Log("Collider off");
 
+    }
+
+    protected IEnumerator ShowMuzzleFlash()
+    {
+        if (muzzleFlashRenderer == null || muzzleFlashSprites == null || muzzleFlashSprites.Length == 0)
+            yield break;
+
+        muzzleFlashRenderer.enabled = true;
+        foreach (Sprite frame in muzzleFlashSprites)
+        {
+            muzzleFlashRenderer.sprite = frame;
+            yield return new WaitForSeconds(muzzleFlashFrameTime);
+        }
+        muzzleFlashRenderer.enabled = false;
     }
 
     protected void ReloadLogic()

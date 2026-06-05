@@ -51,6 +51,7 @@ public class Shotgun : Gun
         // Play shotgun sound effect
         BulletSound();
         StartCoroutine(SetCollisionZoneActive(0.1f));
+        StartCoroutine(ShowMuzzleFlash());
 
         // Cache colliders to ignore: player body + the shotgun cone zone itself
         Collider[] playerColliders = PlayerMovementForce.instance != null

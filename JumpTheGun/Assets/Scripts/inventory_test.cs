@@ -4,6 +4,7 @@ public class Inventory_test : MonoBehaviour
 {
     [SerializeField] GameObject weaponWheelUI;
     private bool isWheelActive = false;
+    public static bool IsWheelOpen { get; private set; }
 
     [SerializeField] float sensitivity = 5f;
     private Vector2 virtualMousePos = Vector2.zero;
@@ -54,6 +55,7 @@ public class Inventory_test : MonoBehaviour
     void ShowWheel()
     {
         isWheelActive = true;
+        IsWheelOpen = true;
         weaponWheelUI.SetActive(true);
 
         Cursor.lockState = CursorLockMode.None;
@@ -62,6 +64,7 @@ public class Inventory_test : MonoBehaviour
     void HideWheel()
     {
         isWheelActive = false;
+        IsWheelOpen = false;
         weaponWheelUI.SetActive(false);
 
         Cursor.lockState = CursorLockMode.Locked;
